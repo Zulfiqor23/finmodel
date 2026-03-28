@@ -115,6 +115,17 @@ const en: Dictionary = {
     roiTitle: 'Return on Investment',
     roiDesc: 'Percentage ratio of net daily profit to total daily costs.',
   },
+  aiAnalysis: {
+    heading: 'AI Business Intelligence',
+    exceptionalROI: (roi) => `⭐ Exceptional Profitability: High Return on Investment (${Number(roi).toFixed(1)}%). Your current margin structure and labor combination are highly efficient.`,
+    stableROI: (roi) => `✅ Stable Operations: Moderate return (${Number(roi).toFixed(1)}%). Continuing exactly like this maintains steady cash flow.`,
+    lowMargin: (roi) => `⚠️ Low Margin Alert: Business is profitable but ROI is only ${Number(roi).toFixed(1)}%. Consider reducing defect rates or negotiating material discounts.`,
+    criticalLoss: (loss) => `🚨 Critical Loss: Factory is operating at a daily loss of $${loss}. Immediate cost reduction or price increases required.`,
+    volumeWarning: (units) => `📉 Volume Warning: You are ${units} units below the safe breakeven threshold. Fixed costs are burning profits.`,
+    qualityControl: (rate, loss) => `🔍 Quality Control: defect rate is high (${rate}%), effectively wasting $${loss} of potential daily revenue.`,
+    proMarginWarning: `💼 Pro Series Margin: The 'Pro' SKU is generating less than 20% gross margin. Check 'Pro Material Cost' vs 'Pro Price'.`,
+    noAnomalies: 'No severe anomalies detected. Factory is operating within expected parameters.',
+  },
 };
 
 const ru: Dictionary = {
@@ -228,6 +239,17 @@ const ru: Dictionary = {
     roiTitle: 'Окупаемость инвестиций',
     roiDesc: 'Доля ежедневной чистой прибыли к общим ежедневным затратам.',
   },
+  aiAnalysis: {
+    heading: 'ИИ-Бизнес-Аналитика',
+    exceptionalROI: (roi) => `⭐ Исключительная прибыльность: Высокий ROI (${Number(roi).toFixed(1)}%). Текущая структура маржи и трудозатрат очень эффективны.`,
+    stableROI: (roi) => `✅ Стабильная работа: Умеренная доходность (${Number(roi).toFixed(1)}%). Дальнейшая работа в таком же темпе обеспечит стабильный денежный поток.`,
+    lowMargin: (roi) => `⚠️ Предупреждение о низкой марже: Бизнес прибылен, но ROI всего ${Number(roi).toFixed(1)}%. Рассмотрите снижение уровня брака или скидки на материалы.`,
+    criticalLoss: (loss) => `🚨 Критический убыток: Фабрика несет ежедневный убыток в размере $${loss}. Требуется немедленное сокращение затрат или повышение цен.`,
+    volumeWarning: (units) => `📉 Предупреждение об объеме: Вы на ${units} единиц ниже порога безубыточности. Постоянные затраты сжигают прибыль.`,
+    qualityControl: (rate, loss) => `🔍 Контроль качества: Высокий уровень брака (${rate}%), что приводит к потере $${loss} потенциальной дневной выручки.`,
+    proMarginWarning: `💼 Маржа серии Pro: Маржа продукта "Pro" составляет менее 20%. Проверьте "Мат. затраты Pro" против "Цена Pro".`,
+    noAnomalies: 'Серьезных аномалий не обнаружено. Фабрика работает в ожидаемых параметрах.',
+  },
 };
 
 const uz: Dictionary = {
@@ -340,6 +362,17 @@ const uz: Dictionary = {
     roi: 'ROI',
     roiTitle: 'Investitsiya foyda ko\'rsatkichi',
     roiDesc: 'Tizim xarajatiga nisbatan kunlik tushadigan real sof foyda miqdori (foizda).',
+  },
+  aiAnalysis: {
+    heading: 'AI Biznes Analitikasi',
+    exceptionalROI: (roi) => `⭐ Ajoyib daromadlilik: Yuqori ROI (${Number(roi).toFixed(1)}%). Sizning hozirgi marja doirangiz va ishchilar kombinatsiyasi juda samarali.`,
+    stableROI: (roi) => `✅ Barqaror ish: O'rtacha daromad (${Number(roi).toFixed(1)}%). Xuddi shunday ishlashni davom ettirish barqaror pul oqimini ta'minlaydi.`,
+    lowMargin: (roi) => `⚠️ Past marja ogohlantirishi: Biznes foyda keltiryapti, ammo ROI faqat ${Number(roi).toFixed(1)}%. Brak miqdorini tushirish yoki materiallarga chegirma olishni o'ylab ko'ring.`,
+    criticalLoss: (loss) => `🚨 Kritik zarar: Fabrika kunlik $${loss} zarar bilan ishlamoqda. Zudlik bilan xarajatlarni qisqartirish yoki narxlarni oshirish talab etiladi.`,
+    volumeWarning: (units) => `📉 Hajm ogohlantirishi: Siz foydalilik chegarasidan ${units} modul pastdasiz. Qat'iy xarajatlar foydani yoqmoqda.`,
+    qualityControl: (rate, loss) => `🔍 Sifat nazorati: brak foizi yuqori (${rate}%), bu esa potensial kunlik tushumning $${loss} qismini yo'qotmoqda.`,
+    proMarginWarning: `💼 Pro Seriyasi Marjasi: 'Pro' tipidagi modul 20% dan kam yalpi foyda keltirmoqda. 'Pro narxi' va 'Pro xom-ashyosi'ni tekshiring.`,
+    noAnomalies: "Hech qanday og'ir anomaliya aniqlanmadi. Fabrika kutilgan parametrlar doirasida ishlamoqda.",
   },
 };
 

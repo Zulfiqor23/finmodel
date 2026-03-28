@@ -107,6 +107,18 @@ export interface MarketingStrings {
   volumeShare: string;
 }
 
+export interface AIAnalysisStrings {
+  heading: string;
+  exceptionalROI: (roi: string) => string;
+  stableROI: (roi: string) => string;
+  lowMargin: (roi: string) => string;
+  criticalLoss: (loss: string) => string;
+  volumeWarning: (units: string) => string;
+  qualityControl: (rate: string, loss: string) => string;
+  proMarginWarning: string;
+  noAnomalies: string;
+}
+
 export interface LanguageSwitcherStrings {
   label: string;
 }
@@ -142,6 +154,7 @@ export interface Dictionary {
   unitCost: UnitCostStrings;
   laborCard: LaborCardStrings;
   marketing: MarketingStrings;
+  aiAnalysis: AIAnalysisStrings;
   languageSwitcher: LanguageSwitcherStrings;
   themeSwitcher: ThemeSwitcherStrings;
   dashboard: DashboardStrings;

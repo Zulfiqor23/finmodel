@@ -205,6 +205,7 @@ export default function Dashboard() {
                   inputs={inputs}
                   outputs={outputs}
                   themeClasses={themeClasses}
+                  t={t.aiAnalysis}
                />
             </div>
           </div>
