@@ -2,9 +2,12 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import type { UnitCostBreakdown, ProductSku } from '@/lib/types';
+import type { UnitCostStrings, ThemeClasses } from '@/lib/i18n';
 
 interface UnitCostDonutProps {
   unitCosts: UnitCostBreakdown[];
+  t: UnitCostStrings;
+  themeClasses: ThemeClasses;
 }
 
 const SKU_COLORS: Record<ProductSku, string> = {
@@ -40,18 +43,25 @@ function CustomTooltip({
   );
 }
 
-export default function UnitCostDonut({ unitCosts }: UnitCostDonutProps) {
+export default function UnitCostDonut({ unitCosts, t, themeClasses }: UnitCostDonutProps) {
+  const legendItems = [
+    { name: t.material, color: COST_COLORS[0] },
+    { name: t.labor, color: COST_COLORS[1] },
+    { name: t.electricity, color: COST_COLORS[2] },
+    { name: t.overhead, color: COST_COLORS[3] },
+  ];
+
   return (
-    <div className="rounded-2xl border border-gray-800 bg-gray-900 p-5 space-y-4">
-      <h2 className="text-lg font-semibold text-gray-300">Unit Cost Breakdown</h2>
+    <div className={`rounded-xl border ${themeClasses.card} p-5 space-y-4 shadow-lg shadow-black/20 transition-all duration-300 ease-in-out`}>
+      <h2 className={`text-lg font-semibold ${themeClasses.text}`}>{t.heading}</h2>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {unitCosts.map((uc) => {
           const data = [
-            { name: 'Material', value: uc.material },
-            { name: 'Labor', value: uc.labor },
-            { name: 'Electricity', value: uc.electricity },
-            { name: 'Overhead', value: uc.overhead },
+            { name: t.material, value: uc.material },
+            { name: t.labor, value: uc.labor },
+            { name: t.electricity, value: uc.electricity },
+            { name: t.overhead, value: uc.overhead },
           ];
 
           return (
@@ -82,14 +92,14 @@ export default function UnitCostDonut({ unitCosts }: UnitCostDonutProps) {
                 </PieChart>
               </ResponsiveContainer>
               <div className="space-y-0.5 text-xs">
-                <p className="text-gray-400">
-                  Cost{' '}
-                  <span className="font-mono text-gray-200">
+                <p className={themeClasses.textMuted}>
+                  {t.cost}{' '}
+                  <span className={`font-mono ${themeClasses.text}`}>
                     ${uc.totalCost.toFixed(2)}
                   </span>
                 </p>
-                <p className="text-gray-400">
-                  Margin{' '}
+                <p className={themeClasses.textMuted}>
+                  {t.margin}{' '}
                   <span
                     className={`font-mono ${
                       uc.grossMargin >= 0 ? 'text-emerald-400' : 'text-red-400'
@@ -105,14 +115,14 @@ export default function UnitCostDonut({ unitCosts }: UnitCostDonutProps) {
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap justify-center gap-4 text-xs text-gray-500">
-        {['Material', 'Labor', 'Electricity', 'Overhead'].map((name, i) => (
-          <span key={name} className="flex items-center gap-1">
+      <div className={`flex flex-wrap justify-center gap-4 text-xs ${themeClasses.textDimmed}`}>
+        {legendItems.map((item) => (
+          <span key={item.name} className="flex items-center gap-1">
             <span
               className="inline-block h-2.5 w-2.5 rounded-full"
-              style={{ backgroundColor: COST_COLORS[i] }}
+              style={{ backgroundColor: item.color }}
             />
-            {name}
+            {item.name}
           </span>
         ))}
       </div>

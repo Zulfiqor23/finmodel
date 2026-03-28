@@ -13,7 +13,12 @@
       "Bash(npx tsc:*)",
       "Bash(cmd /c \"git status 2>&1\")",
       "Bash(cmd /c \"git status 2>&1 && echo --- && dir /b 2>&1\")",
-      "Bash(cmd /c \"dir /b /a 2>&1\")"
+      "Bash(cmd /c \"dir /b /a 2>&1\")",
+      "Bash(npx jest:*)",
+      "Bash(npm run:*)",
+      "Bash(gh repo:*)",
+      "Bash(npm test:*)",
+      "Bash(npx vercel:*)"
     ]
   }
 }

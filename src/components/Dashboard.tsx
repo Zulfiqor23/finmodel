@@ -3,6 +3,8 @@
 import { useState, useCallback } from 'react';
 import { Factory } from 'lucide-react';
 import { useFactoryCalculations } from '@/hooks/useFactoryCalculations';
+import { useLocale } from '@/hooks/useLocale';
+import { useTheme } from '@/hooks/useTheme';
 import type { FactoryInputs } from '@/lib/types';
 import InputPanel from './InputPanel';
 import ProfitabilityHeatmap from './ProfitabilityHeatmap';
@@ -10,6 +12,8 @@ import SafetyZoneGauge from './SafetyZoneGauge';
 import UnitCostDonut from './UnitCostDonut';
 import LaborProductivityCard from './LaborProductivityCard';
 import MarketingAdvisory from './MarketingAdvisory';
+import LanguageSwitcher from './LanguageSwitcher';
+import ThemeSwitcher from './ThemeSwitcher';
 
 const INITIAL_INPUTS: FactoryInputs = {
   unitsPerDay: 50,
@@ -25,6 +29,8 @@ const INITIAL_INPUTS: FactoryInputs = {
 export default function Dashboard() {
   const [inputs, setInputs] = useState<FactoryInputs>(INITIAL_INPUTS);
   const outputs = useFactoryCalculations(inputs);
+  const { locale, setLocale, t } = useLocale();
+  const { theme, setTheme, themeClasses } = useTheme();
 
   const handleChange = useCallback(
     (key: keyof FactoryInputs, value: number) => {
@@ -34,16 +40,32 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100">
+    <div className={`min-h-screen transition-colors duration-300 ${themeClasses.bg}`}>
       {/* Header */}
-      <header className="border-b border-gray-800 bg-gray-950/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6">
-          <Factory className="h-7 w-7 text-emerald-400" />
-          <div>
-            <h1 className="text-xl font-bold tracking-tight">FinModel</h1>
-            <p className="text-xs text-gray-500">
-              Dynamic Factory OS Dashboard
-            </p>
+      <header className={`border-b ${themeClasses.headerBg} backdrop-blur-sm sticky top-0 z-50 transition-colors duration-300`}>
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-3">
+            <Factory className={`h-7 w-7 ${themeClasses.accent}`} />
+            <div>
+              <h1 className={`text-xl font-bold tracking-tight ${themeClasses.text}`}>
+                {t.header.title}
+              </h1>
+              <p className={`text-xs ${themeClasses.textDimmed}`}>
+                {t.header.subtitle}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher
+              locale={locale}
+              setLocale={setLocale}
+              themeClasses={themeClasses}
+            />
+            <ThemeSwitcher
+              theme={theme}
+              setTheme={setTheme}
+              t={t.themeSwitcher}
+            />
           </div>
         </div>
       </header>
@@ -53,7 +75,12 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
           {/* Left sidebar: controls */}
           <div className="lg:col-span-3">
-            <InputPanel inputs={inputs} onChange={handleChange} />
+            <InputPanel
+              inputs={inputs}
+              onChange={handleChange}
+              t={t.inputPanel}
+              themeClasses={themeClasses}
+            />
           </div>
 
           {/* Right area: dashboard cards */}
@@ -63,12 +90,22 @@ export default function Dashboard() {
               <ProfitabilityHeatmap
                 outputs={outputs}
                 workdaysPerMonth={inputs.workdaysPerMonth}
+                t={t.profitability}
+                themeClasses={themeClasses}
               />
-              <SafetyZoneGauge breakeven={outputs.breakeven} />
+              <SafetyZoneGauge
+                breakeven={outputs.breakeven}
+                t={t.breakeven}
+                themeClasses={themeClasses}
+              />
             </div>
 
             {/* Middle: Unit cost donuts */}
-            <UnitCostDonut unitCosts={outputs.unitCosts} />
+            <UnitCostDonut
+              unitCosts={outputs.unitCosts}
+              t={t.unitCost}
+              themeClasses={themeClasses}
+            />
 
             {/* Bottom row: Labor + Marketing */}
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
@@ -76,8 +113,14 @@ export default function Dashboard() {
                 labor={outputs.labor}
                 unitsPerDay={inputs.unitsPerDay}
                 efficiency={inputs.efficiency}
+                t={t.laborCard}
+                themeClasses={themeClasses}
               />
-              <MarketingAdvisory marketing={outputs.marketing} />
+              <MarketingAdvisory
+                marketing={outputs.marketing}
+                t={t.marketing}
+                themeClasses={themeClasses}
+              />
             </div>
           </div>
         </div>

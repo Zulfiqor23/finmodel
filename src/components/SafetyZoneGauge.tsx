@@ -2,20 +2,23 @@
 
 import { ShieldCheck, ShieldAlert } from 'lucide-react';
 import type { BreakevenResult } from '@/lib/types';
+import type { BreakevenStrings, ThemeClasses } from '@/lib/i18n';
 
 interface SafetyZoneGaugeProps {
   breakeven: BreakevenResult;
+  t: BreakevenStrings;
+  themeClasses: ThemeClasses;
 }
 
-export default function SafetyZoneGauge({ breakeven }: SafetyZoneGaugeProps) {
+export default function SafetyZoneGauge({ breakeven, t, themeClasses }: SafetyZoneGaugeProps) {
   const { threshold, currentUnits, isSafe, unitsFromBreakeven } = breakeven;
   const pct = Math.min((currentUnits / 100) * 100, 100);
   const thresholdPct = (threshold / 100) * 100;
 
   return (
-    <div className="rounded-2xl border border-gray-800 bg-gray-900 p-5 space-y-4">
+    <div className={`rounded-xl border ${themeClasses.card} p-5 space-y-4 shadow-lg shadow-black/20 transition-all duration-300 ease-in-out`}>
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-300">Breakeven Zone</h2>
+        <h2 className={`text-lg font-semibold ${themeClasses.text}`}>{t.heading}</h2>
         {isSafe ? (
           <ShieldCheck className="h-6 w-6 text-emerald-400" />
         ) : (
@@ -25,7 +28,7 @@ export default function SafetyZoneGauge({ breakeven }: SafetyZoneGaugeProps) {
 
       {/* Gauge bar */}
       <div className="relative">
-        <div className="h-6 w-full rounded-full bg-gray-800 overflow-hidden">
+        <div className={`h-6 w-full rounded-full ${themeClasses.barBg} overflow-hidden`}>
           {/* Danger zone background */}
           <div
             className="absolute inset-y-0 left-0 bg-red-900/30"
@@ -53,9 +56,9 @@ export default function SafetyZoneGauge({ breakeven }: SafetyZoneGaugeProps) {
 
       {/* Labels */}
       <div className="flex items-center justify-between text-xs">
-        <span className="text-gray-500">0</span>
-        <span className="font-mono text-amber-400">{threshold} (breakeven)</span>
-        <span className="text-gray-500">100</span>
+        <span className={themeClasses.textDimmed}>0</span>
+        <span className="font-mono text-amber-400">{threshold} ({t.breakeven})</span>
+        <span className={themeClasses.textDimmed}>100</span>
       </div>
 
       {/* Status */}
@@ -65,12 +68,12 @@ export default function SafetyZoneGauge({ breakeven }: SafetyZoneGaugeProps) {
             isSafe ? 'text-emerald-400' : 'text-red-400'
           }`}
         >
-          {currentUnits} units/day
+          {currentUnits} {t.unitsPerDay}
         </p>
-        <p className="text-sm text-gray-500">
+        <p className={`text-sm ${themeClasses.textDimmed}`}>
           {unitsFromBreakeven >= 0
-            ? `${unitsFromBreakeven} units above breakeven`
-            : `${Math.abs(unitsFromBreakeven)} units below breakeven`}
+            ? `${unitsFromBreakeven} ${t.aboveBreakeven}`
+            : `${Math.abs(unitsFromBreakeven)} ${t.belowBreakeven}`}
         </p>
       </div>
     </div>
