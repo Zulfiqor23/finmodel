@@ -38,143 +38,110 @@ import type {
 // 1. Unit distribution
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Splits total daily units across the three SKUs according to mix ratios.
- * The Pro bucket absorbs any rounding residual so totals always sum exactly
- * to unitsPerDay.
- *
- * @param inputs.unitsPerDay  Total daily production target
- * @param inputs.baseMix      Fraction allocated to Base (0–1)
- * @param inputs.liteMix      Fraction allocated to Lite (0–1)
- * @param inputs.proMix       Fraction allocated to Pro  (0–1)
- */
 export function calculateUnitsPerProduct(
   inputs: Pick<FactoryInputs, 'unitsPerDay' | 'baseMix' | 'liteMix' | 'proMix'>
 ): UnitsPerProduct {
-  // TODO: implement
-  // base = Math.round(unitsPerDay * baseMix)
-  // lite = Math.round(unitsPerDay * liteMix)
-  // pro  = unitsPerDay − base − lite   (absorbs rounding residual)
-  throw new Error('Not implemented');
+  const { unitsPerDay, baseMix, liteMix } = inputs;
+  const base = Math.round(unitsPerDay * baseMix);
+  const lite = Math.round(unitsPerDay * liteMix);
+  const pro = unitsPerDay - base - lite; // absorbs rounding residual
+  return { base, lite, pro };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 2. Revenue
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Calculates daily gross revenue per SKU and in aggregate.
- *
- * @param units  Result of calculateUnitsPerProduct()
- */
 export function calculateRevenue(units: UnitsPerProduct): RevenueBreakdown {
-  // TODO: implement
-  // For each SKU: revenue = units[sku] * PRODUCTS[sku].price
-  // total = base + lite + pro
-  throw new Error('Not implemented');
+  const baseProduct = _getProduct('base');
+  const liteProduct = _getProduct('lite');
+  const proProduct = _getProduct('pro');
+
+  const base = units.base * baseProduct.price;
+  const lite = units.lite * liteProduct.price;
+  const pro = units.pro * proProduct.price;
+  const total = base + lite + pro;
+
+  return { base, lite, pro, total };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 3. Material costs
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Calculates daily raw material costs per SKU and in aggregate.
- *
- * @param units  Result of calculateUnitsPerProduct()
- */
 export function calculateMaterialCost(
   units: UnitsPerProduct
 ): MaterialCostBreakdown {
-  // TODO: implement
-  // For each SKU: cost = units[sku] * PRODUCTS[sku].materialCost
-  // total = base + lite + pro
-  throw new Error('Not implemented');
+  const baseProduct = _getProduct('base');
+  const liteProduct = _getProduct('lite');
+  const proProduct = _getProduct('pro');
+
+  const base = units.base * baseProduct.materialCost;
+  const lite = units.lite * liteProduct.materialCost;
+  const pro = units.pro * proProduct.materialCost;
+  const total = base + lite + pro;
+
+  return { base, lite, pro, total };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 4. Labor tier lookup
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Returns the active LaborTier for a given daily unit count.
- * Throws if unitsPerDay falls outside all defined tiers.
- *
- * @param unitsPerDay  Total daily production (1–100)
- */
 export function calculateLaborTier(unitsPerDay: number): LaborTier {
-  // TODO: implement
-  // Find first tier where minUnits <= unitsPerDay <= maxUnits
-  // Throw RangeError if none found
-  void LABOR_TIERS; // reference to suppress unused-import lint until implemented
-  throw new Error('Not implemented');
+  const tier = LABOR_TIERS.find(
+    (t) => unitsPerDay >= t.minUnits && unitsPerDay <= t.maxUnits
+  );
+  if (!tier) {
+    throw new RangeError(
+      `No labor tier defined for ${unitsPerDay} units/day. Valid range: 1–100.`
+    );
+  }
+  return { ...tier };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 5. Labor cost
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Calculates the full daily and monthly labor bill.
- *
- * Daily wage cost  = (workerCount × wagePerWorker) / workdaysPerMonth
- * Daily piece rate = unitsPerDay × PIECE_RATE  (only when pieceRateApplies)
- * Total daily      = dailyWageCost + dailyPieceRateCost
- * Total monthly    = totalDailyCost × workdaysPerMonth
- *
- * @param unitsPerDay       Total daily production
- * @param workdaysPerMonth  Working days in the current month
- */
 export function calculateLaborCost(
   unitsPerDay: number,
   workdaysPerMonth: number
 ): LaborCostBreakdown {
-  // TODO: implement
-  // 1. Get tier via calculateLaborTier(unitsPerDay)
-  // 2. dailyWageCost = (tier.workerCount * tier.wagePerWorker) / workdaysPerMonth
-  // 3. dailyPieceRateCost = tier.pieceRateApplies ? unitsPerDay * PIECE_RATE : 0
-  void PIECE_RATE; // suppress until implemented
-  throw new Error('Not implemented');
+  const tier = calculateLaborTier(unitsPerDay);
+  const dailyWageCost =
+    (tier.workerCount * tier.wagePerWorker) / workdaysPerMonth;
+  const dailyPieceRateCost = tier.pieceRateApplies
+    ? unitsPerDay * PIECE_RATE
+    : 0;
+  const totalDailyCost = dailyWageCost + dailyPieceRateCost;
+  const totalMonthlyCost = totalDailyCost * workdaysPerMonth;
+
+  return {
+    tier,
+    workerCount: tier.workerCount,
+    dailyWageCost,
+    dailyPieceRateCost,
+    totalDailyCost,
+    totalMonthlyCost,
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 6. Electricity
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Calculates daily electricity cost.
- *
- * Formula: BASE_POWER + MACHINE_POWER × (shiftHours / 10)
- *
- * @param shiftHours  Active shift length (1–10 hours)
- */
 export function calculateElectricity(shiftHours: number): ElectricityCost {
-  // TODO: implement
-  // machinePower = MACHINE_POWER * (shiftHours / 10)
-  // totalDaily   = BASE_POWER + machinePower
-  void BASE_POWER;
-  void MACHINE_POWER;
-  throw new Error('Not implemented');
+  const basePower = BASE_POWER;
+  const machinePower = MACHINE_POWER * (shiftHours / 10);
+  const totalDaily = basePower + machinePower;
+  return { basePower, machinePower, totalDaily };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 7. Overhead / burn rate
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Calculates factory burn rate and overhead allocated per unit.
- *
- * dailyBurnRate       = BURN_RATE × shiftHours
- * dailyRentAllocation = monthlyRent / workdaysPerMonth
- * totalDailyFixed     = dailyBurnRate + dailyRentAllocation
- * overheadPerUnit     = totalDailyFixed / (unitsPerDay × efficiency)
- *
- * @param shiftHours        Active shift length in hours
- * @param unitsPerDay       Total daily production
- * @param efficiency        Worker efficiency ratio (0–1)
- * @param monthlyRent       Monthly rent / fixed overhead (USD)
- * @param workdaysPerMonth  Working days in the month
- */
 export function calculateOverhead(
   shiftHours: number,
   unitsPerDay: number,
@@ -182,144 +149,162 @@ export function calculateOverhead(
   monthlyRent: number,
   workdaysPerMonth: number
 ): OverheadBreakdown {
-  // TODO: implement
-  void BURN_RATE; // suppress until implemented
-  throw new Error('Not implemented');
+  const dailyBurnRate = BURN_RATE * shiftHours;
+  const dailyRentAllocation = monthlyRent / workdaysPerMonth;
+  const totalDailyFixed = dailyBurnRate + dailyRentAllocation;
+  const effectiveUnits = unitsPerDay * efficiency;
+  const overheadPerUnit = effectiveUnits > 0 ? totalDailyFixed / effectiveUnits : 0;
+
+  return { dailyBurnRate, dailyRentAllocation, totalDailyFixed, overheadPerUnit };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 8. Per-unit cost breakdown
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Builds a full cost/margin breakdown for each SKU.
- *
- * totalCost       = material + labor + electricity + overhead
- * grossMargin     = sellingPrice − totalCost
- * grossMarginPct  = (grossMargin / sellingPrice) × 100
- *
- * @param labor        Result of calculateLaborCost()
- * @param electricity  Result of calculateElectricity()
- * @param overhead     Result of calculateOverhead()
- */
 export function calculateUnitCostBreakdown(
   labor: LaborCostBreakdown,
   electricity: ElectricityCost,
-  overhead: OverheadBreakdown
+  overhead: OverheadBreakdown,
+  units: UnitsPerProduct
 ): UnitCostBreakdown[] {
-  // TODO: implement
-  // For each product in PRODUCTS:
-  //   material  = product.materialCost
-  //   labor     = product.laborPerUnit  (+pieceRate if applicable)
-  //   electricity = electricity.totalDaily / sum(units)   (allocated equally per unit)
-  //   overhead  = overhead.overheadPerUnit
-  //   totalCost = material + labor + electricity + overhead
-  void PRODUCTS;
-  throw new Error('Not implemented');
+  const totalUnits = units.base + units.lite + units.pro;
+  const electricityPerUnit = totalUnits > 0 ? electricity.totalDaily / totalUnits : 0;
+
+  return PRODUCTS.map((product) => {
+    const material = product.materialCost;
+    const laborCost = product.laborPerUnit + (labor.tier.pieceRateApplies ? PIECE_RATE : 0);
+    const elec = electricityPerUnit;
+    const oh = overhead.overheadPerUnit;
+    const totalCost = material + laborCost + elec + oh;
+    const sellingPrice = product.price;
+    const grossMargin = sellingPrice - totalCost;
+    const grossMarginPct = sellingPrice > 0 ? (grossMargin / sellingPrice) * 100 : 0;
+
+    return {
+      sku: product.sku,
+      material,
+      labor: laborCost,
+      electricity: elec,
+      overhead: oh,
+      totalCost,
+      sellingPrice,
+      grossMargin,
+      grossMarginPct,
+    };
+  });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 9. Contribution margins
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Returns the contribution margin per unit for each SKU.
- * CM = price − materialCost − laborPerUnit
- * Values are sourced directly from PRODUCTS constants (pre-computed).
- */
 export function calculateContributionMargins(): ContributionMargins {
-  // TODO: implement
-  // Return { base: 176.50, lite: 235.00, pro: 420.00 } derived from PRODUCTS
-  throw new Error('Not implemented');
+  const base = _getProduct('base').contributionMargin;
+  const lite = _getProduct('lite').contributionMargin;
+  const pro = _getProduct('pro').contributionMargin;
+  return { base, lite, pro };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 10. Breakeven analysis
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Determines whether the factory is operating above the breakeven threshold.
- *
- * @param unitsPerDay  Total daily production
- */
 export function calculateBreakeven(unitsPerDay: number): BreakevenResult {
-  // TODO: implement
-  // isSafe = unitsPerDay >= BREAKEVEN_THRESHOLD
-  // unitsFromBreakeven = unitsPerDay - BREAKEVEN_THRESHOLD
-  void BREAKEVEN_THRESHOLD;
-  throw new Error('Not implemented');
+  return {
+    threshold: BREAKEVEN_THRESHOLD,
+    currentUnits: unitsPerDay,
+    isSafe: unitsPerDay >= BREAKEVEN_THRESHOLD,
+    unitsFromBreakeven: unitsPerDay - BREAKEVEN_THRESHOLD,
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 11. Marketing advice
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Recommends the SKU with the highest weighted contribution margin.
- *
- * Score(sku) = CM(sku) × volumeShare(sku)
- * where volumeShare = units[sku] / unitsPerDay
- *
- * The SKU with the highest score is recommended.
- *
- * @param units        Result of calculateUnitsPerProduct()
- * @param unitsPerDay  Total daily production (used to compute share)
- */
 export function generateMarketingAdvice(
   units: UnitsPerProduct,
   unitsPerDay: number
 ): MarketingAdvice {
-  // TODO: implement
-  // 1. Get CMs from calculateContributionMargins()
-  // 2. For each SKU: score = CM * (units[sku] / unitsPerDay)
-  // 3. recommendedSku = argmax(scores)
-  // 4. Build rationale string
-  throw new Error('Not implemented');
+  const cms = calculateContributionMargins();
+  const skus: ProductSku[] = ['base', 'lite', 'pro'];
+
+  const scores: Record<ProductSku, number> = {
+    base: 0,
+    lite: 0,
+    pro: 0,
+  };
+
+  for (const sku of skus) {
+    const volumeShare = unitsPerDay > 0 ? units[sku] / unitsPerDay : 0;
+    scores[sku] = cms[sku] * volumeShare;
+  }
+
+  let recommendedSku: ProductSku = 'base';
+  let maxScore = -Infinity;
+  for (const sku of skus) {
+    if (scores[sku] > maxScore) {
+      maxScore = scores[sku];
+      recommendedSku = sku;
+    }
+  }
+
+  const product = _getProduct(recommendedSku);
+  const rationale = `Focus on ${product.label}: highest weighted contribution margin of $${maxScore.toFixed(2)} (CM $${cms[recommendedSku].toFixed(2)} x ${((unitsPerDay > 0 ? units[recommendedSku] / unitsPerDay : 0) * 100).toFixed(0)}% volume share).`;
+
+  return { recommendedSku, scores, rationale };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 12. Master calculation — called by Dashboard.tsx on every slider change
+// 12. Master calculation
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Runs the full calculation pipeline from raw slider inputs to all dashboard
- * outputs. This is the only function Dashboard.tsx should call.
- *
- * Pipeline order:
- *  1. calculateUnitsPerProduct
- *  2. calculateRevenue
- *  3. calculateMaterialCost
- *  4. calculateLaborCost
- *  5. calculateElectricity
- *  6. calculateOverhead
- *  7. calculateUnitCostBreakdown
- *  8. calculateContributionMargins
- *  9. calculateBreakeven
- * 10. generateMarketingAdvice
- * 11. Derive dailyProfit and monthlyProfit
- *
- * @param inputs  All slider values from Dashboard state
- */
 export function calculateAll(inputs: FactoryInputs): FactoryOutputs {
-  // TODO: implement
-  // Wire up all sub-functions in order and return assembled FactoryOutputs
-  void inputs;
-  throw new Error('Not implemented');
+  const units = calculateUnitsPerProduct(inputs);
+  const revenue = calculateRevenue(units);
+  const materials = calculateMaterialCost(units);
+  const labor = calculateLaborCost(inputs.unitsPerDay, inputs.workdaysPerMonth);
+  const electricity = calculateElectricity(inputs.shiftHours);
+  const overhead = calculateOverhead(
+    inputs.shiftHours,
+    inputs.unitsPerDay,
+    inputs.efficiency,
+    inputs.monthlyRent,
+    inputs.workdaysPerMonth
+  );
+  const unitCosts = calculateUnitCostBreakdown(labor, electricity, overhead, units);
+  const contributionMargins = calculateContributionMargins();
+  const breakeven = calculateBreakeven(inputs.unitsPerDay);
+  const marketing = generateMarketingAdvice(units, inputs.unitsPerDay);
+
+  const totalDailyCosts =
+    materials.total + labor.totalDailyCost + electricity.totalDaily + overhead.totalDailyFixed;
+  const dailyProfit = revenue.total - totalDailyCosts;
+  const monthlyProfit = dailyProfit * inputs.workdaysPerMonth;
+
+  return {
+    units,
+    revenue,
+    materials,
+    labor,
+    electricity,
+    overhead,
+    unitCosts,
+    contributionMargins,
+    breakeven,
+    marketing,
+    dailyProfit,
+    monthlyProfit,
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Internal helpers (not exported — tested indirectly via public API)
+// Internal helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Looks up a Product record by SKU. Throws if SKU is not found.
- * @internal
- */
 function _getProduct(sku: ProductSku) {
   const product = PRODUCTS.find((p) => p.sku === sku);
   if (!product) throw new RangeError(`Unknown SKU: ${sku}`);
   return product;
 }
-
-// Prevent unused-variable lint error until _getProduct is called by implementors
-void _getProduct;
