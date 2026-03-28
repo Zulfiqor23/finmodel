@@ -120,6 +120,7 @@ const en: Dictionary = {
     payback: 'Payback',
     paybackTitle: 'Payback Period',
     paybackDesc: 'Estimated number of months to recover the total Investment through Monthly Net Profit. Formula: Total Investment / Monthly Net Profit.',
+    paybackValue: (m: number) => m > 120 ? '> 10 years' : `${m.toFixed(1)} months`,
     vat: 'VAT (QQS) (oy/mo)',
   },
   aiAnalysis: {
@@ -251,6 +252,7 @@ const ru: Dictionary = {
     payback: 'Окупаемость',
     paybackTitle: 'Срок окупаемости',
     paybackDesc: 'Ориентировочное количество месяцев для возврата общей Инвестиции за счет Ежемесячной Чистой Прибыли. Формула: Общая Инвестиция / Обычная Чистая Прибыль в месяц.',
+    paybackValue: (m: number) => m > 120 ? '> 10 лет' : `${m.toFixed(1)} мес`,
     vat: 'НДС (QQS) (oy/mo)',
   },
   aiAnalysis: {
@@ -382,6 +384,7 @@ const uz: Dictionary = {
     payback: 'O\'zini oqlash',
     paybackTitle: 'O\'zini oqlash muddati',
     paybackDesc: 'Jami Investitsiyani oylik sof foyda orqali necha oyda qaytarishni ko\'rsatadi. Formula: Jami Investitsiya / Oylik Sof Foyda.',
+    paybackValue: (m: number) => m > 120 ? '> 10 yil' : `${m.toFixed(1)} oy`,
     vat: 'QQS (oy/mo)',
   },
   aiAnalysis: {

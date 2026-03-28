@@ -148,6 +148,7 @@ export interface DashboardStrings {
   payback: string;
   paybackTitle: string;
   paybackDesc: string;
+  paybackValue: (months: number) => string;
   vat: string;
 }
 

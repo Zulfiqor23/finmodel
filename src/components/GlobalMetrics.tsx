@@ -58,7 +58,7 @@ export default function GlobalMetrics({ outputs, t, themeClasses }: GlobalMetric
       label: t.payback,
       title: t.paybackTitle,
       desc: t.paybackDesc,
-      value: outputs.paybackMonths > 120 ? '> 10 y' : `${outputs.paybackMonths.toFixed(1)} m`,
+      value: t.paybackValue(outputs.paybackMonths),
       icon: TrendingUp,
       color: 'text-indigo-500',
       bg: 'bg-indigo-50',
