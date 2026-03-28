@@ -11,12 +11,18 @@ interface UnitCostDonutProps {
 }
 
 const SKU_COLORS: Record<ProductSku, string> = {
-  base: '#10b981', // emerald-500
-  lite: '#f59e0b', // amber-500
-  pro: '#6366f1', // indigo-500
+  base: '#0f766e', // teal-700
+  lite: '#8b5cf6', // violet-500
+  pro: '#f43f5e', // rose-500
 };
 
-const COST_COLORS = ['#ef4444', '#f59e0b', '#3b82f6', '#8b5cf6'];
+// Classic Pastel colors for financial breakdown
+const COST_COLORS = [
+  '#cbd5e1', // slate-300 (Material)
+  '#fcd34d', // amber-300 (Labor)
+  '#7dd3fc', // sky-300 (Electricity)
+  '#f9a8d4', // pink-300 (Overhead)
+];
 
 interface PayloadEntry {
   name: string;
@@ -34,9 +40,9 @@ function CustomTooltip({
   if (!active || !payload || payload.length === 0) return null;
   const entry = payload[0];
   return (
-    <div className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-xs shadow-lg">
-      <p className="text-gray-300">{entry.name}</p>
-      <p className="font-mono font-semibold" style={{ color: entry.payload.fill }}>
+    <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs shadow-md">
+      <p className="text-slate-500 font-medium mb-1">{entry.name}</p>
+      <p className="font-mono font-bold" style={{ color: entry.payload.fill }}>
         ${entry.value.toFixed(2)}
       </p>
     </div>
@@ -101,8 +107,8 @@ export default function UnitCostDonut({ unitCosts, t, themeClasses }: UnitCostDo
                 <p className={themeClasses.textMuted}>
                   {t.margin}{' '}
                   <span
-                    className={`font-mono ${
-                      uc.grossMargin >= 0 ? 'text-emerald-400' : 'text-red-400'
+                    className={`font-mono font-medium ${
+                      uc.grossMargin >= 0 ? 'text-emerald-600' : 'text-rose-600'
                     }`}
                   >
                     {uc.grossMarginPct.toFixed(1)}%

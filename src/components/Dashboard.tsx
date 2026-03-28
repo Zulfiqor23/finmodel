@@ -10,10 +10,10 @@ import InputPanel from './InputPanel';
 import ProfitabilityHeatmap from './ProfitabilityHeatmap';
 import SafetyZoneGauge from './SafetyZoneGauge';
 import UnitCostDonut from './UnitCostDonut';
+import GlobalMetrics from './GlobalMetrics';
 import LaborProductivityCard from './LaborProductivityCard';
 import MarketingAdvisory from './MarketingAdvisory';
 import LanguageSwitcher from './LanguageSwitcher';
-import ThemeSwitcher from './ThemeSwitcher';
 
 const INITIAL_INPUTS: FactoryInputs = {
   unitsPerDay: 50,
@@ -24,13 +24,23 @@ const INITIAL_INPUTS: FactoryInputs = {
   efficiency: 0.85,
   workdaysPerMonth: 22,
   monthlyRent: 5000,
+  baseMaterialCost: 200,
+  liteMaterialCost: 280,
+  proMaterialCost: 420,
+  basePrice: 400,
+  litePrice: 550,
+  proPrice: 900,
+  workerWage: 700,
+  basePowerCost: 8,
+  machinePowerCost: 45,
+  burnRatePerHour: 25,
 };
 
 export default function Dashboard() {
   const [inputs, setInputs] = useState<FactoryInputs>(INITIAL_INPUTS);
   const outputs = useFactoryCalculations(inputs);
   const { locale, setLocale, t } = useLocale();
-  const { theme, setTheme, themeClasses } = useTheme();
+  const { themeClasses } = useTheme();
 
   const handleChange = useCallback(
     (key: keyof FactoryInputs, value: number) => {
@@ -61,11 +71,6 @@ export default function Dashboard() {
               setLocale={setLocale}
               themeClasses={themeClasses}
             />
-            <ThemeSwitcher
-              theme={theme}
-              setTheme={setTheme}
-              t={t.themeSwitcher}
-            />
           </div>
         </div>
       </header>
@@ -85,6 +90,13 @@ export default function Dashboard() {
 
           {/* Right area: dashboard cards */}
           <div className="lg:col-span-9 space-y-5">
+            {/* Top global metrics */}
+            <GlobalMetrics
+              outputs={outputs}
+              t={t.dashboard}
+              themeClasses={themeClasses}
+            />
+
             {/* Top row: Profit + Breakeven */}
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               <ProfitabilityHeatmap

@@ -9,14 +9,5 @@ import type { FactoryInputs, FactoryOutputs } from '@/lib/types';
  * Re-computes only when any input changes.
  */
 export function useFactoryCalculations(inputs: FactoryInputs): FactoryOutputs {
-  return useMemo(() => calculateAll(inputs), [
-    inputs.unitsPerDay,
-    inputs.baseMix,
-    inputs.liteMix,
-    inputs.proMix,
-    inputs.shiftHours,
-    inputs.efficiency,
-    inputs.workdaysPerMonth,
-    inputs.monthlyRent,
-  ]);
+  return useMemo(() => calculateAll(inputs), [inputs]);
 }

@@ -17,15 +17,15 @@ const SKU_LABELS: Record<ProductSku, string> = {
 };
 
 const SKU_COLORS: Record<ProductSku, string> = {
-  base: 'bg-emerald-500',
-  lite: 'bg-amber-500',
-  pro: 'bg-indigo-500',
+  base: 'bg-[#0f766e]',
+  lite: 'bg-[#8b5cf6]',
+  pro: 'bg-[#f43f5e]',
 };
 
 const SKU_TEXT: Record<ProductSku, string> = {
-  base: 'text-emerald-400',
-  lite: 'text-amber-400',
-  pro: 'text-indigo-400',
+  base: 'text-[#0f766e]',
+  lite: 'text-[#8b5cf6]',
+  pro: 'text-[#f43f5e]',
 };
 
 export default function MarketingAdvisory({ marketing, t, themeClasses }: MarketingAdvisoryProps) {
@@ -72,7 +72,7 @@ export default function MarketingAdvisory({ marketing, t, themeClasses }: Market
               <div className={`h-2 w-full rounded-full ${themeClasses.barBg}`}>
                 <div
                   className={`h-2 rounded-full transition-all duration-500 ${
-                    isWinner ? SKU_COLORS[sku] : 'bg-gray-600'
+                    isWinner ? SKU_COLORS[sku] : 'bg-slate-300'
                   }`}
                   style={{ width: `${Math.min(pct, 100)}%` }}
                 />

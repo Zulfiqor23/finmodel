@@ -15,6 +15,11 @@ export interface HeaderStrings {
 
 export interface InputPanelStrings {
   heading: string;
+  // Groups
+  groupProduction: string;
+  groupMaterials: string;
+  groupOverhead: string;
+  // Volume inputs
   unitsPerDay: string;
   productMix: string;
   basePercent: string;
@@ -23,7 +28,19 @@ export interface InputPanelStrings {
   shiftHours: string;
   efficiency: string;
   workdaysPerMonth: string;
+  // Material / Price inputs
+  basePrice: string;
+  litePrice: string;
+  proPrice: string;
+  baseMaterialCost: string;
+  liteMaterialCost: string;
+  proMaterialCost: string;
+  // Overhead / Labor inputs
+  workerWage: string;
   monthlyRent: string;
+  basePowerCost: string;
+  machinePowerCost: string;
+  burnRatePerHour: string;
 }
 
 export interface ProfitabilityStrings {
@@ -88,6 +105,21 @@ export interface ThemeSwitcherStrings {
   cold: string;
 }
 
+export interface DashboardStrings {
+  cogs: string;
+  cogsTitle: string;
+  cogsDesc: string;
+  opex: string;
+  opexTitle: string;
+  opexDesc: string;
+  ebitda: string;
+  ebitdaTitle: string;
+  ebitdaDesc: string;
+  roi: string;
+  roiTitle: string;
+  roiDesc: string;
+}
+
 // ─── Aggregate dictionary ────────────────────────────────────────────────────
 
 export interface Dictionary {
@@ -100,6 +132,7 @@ export interface Dictionary {
   marketing: MarketingStrings;
   languageSwitcher: LanguageSwitcherStrings;
   themeSwitcher: ThemeSwitcherStrings;
+  dashboard: DashboardStrings;
 }
 
 // ─── Theme classes interface ─────────────────────────────────────────────────

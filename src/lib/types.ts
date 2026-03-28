@@ -57,6 +57,18 @@ export interface FactoryInputs {
   workdaysPerMonth: number;
   /** Monthly rent / fixed overhead in USD */
   monthlyRent: number;
+
+  // New cost parameters
+  baseMaterialCost: number;
+  liteMaterialCost: number;
+  proMaterialCost: number;
+  basePrice: number;
+  litePrice: number;
+  proPrice: number;
+  workerWage: number;
+  basePowerCost: number;
+  machinePowerCost: number;
+  burnRatePerHour: number;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -172,4 +184,14 @@ export interface FactoryOutputs {
   dailyProfit: number;
   /** Net monthly profit */
   monthlyProfit: number;
+
+  // Advanced Financial Metrics
+  /** Cost of Goods Sold (Materials + Labor + Machine Electricity) */
+  cogs: number;
+  /** Operational Expenses (Rent + Base Electricity + Burn rate) */
+  opex: number;
+  /** Earnings Before Interest, Taxes, Depreciation, and Amortization */
+  ebitda: number;
+  /** Return on Investment (daily annualized or just monthly) */
+  roi: number;
 }

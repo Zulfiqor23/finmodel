@@ -1,16 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
 import type { Theme, ThemeClasses } from '@/lib/i18n';
-
-const STORAGE_KEY = 'fm-theme';
-
-function readStoredTheme(): Theme {
-  if (typeof window === 'undefined') return 'dark';
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === 'dark' || stored === 'light' || stored === 'cold') return stored;
-  return 'dark';
-}
 
 const THEME_CLASS_MAP: Record<Theme, ThemeClasses> = {
   dark: {
@@ -33,23 +23,23 @@ const THEME_CLASS_MAP: Record<Theme, ThemeClasses> = {
     pillInactive: 'text-gray-400 hover:text-gray-200 hover:bg-gray-800',
   },
   light: {
-    bg: 'bg-gray-50 text-gray-900',
-    text: 'text-gray-900',
-    textMuted: 'text-gray-600',
-    textDimmed: 'text-gray-500',
-    card: 'bg-white border-gray-200',
-    cardBorder: 'border-gray-200',
-    accent: 'text-blue-600',
-    accentBg: 'bg-blue-600',
-    accentMuted: 'bg-blue-100 text-blue-700',
-    border: 'border-gray-200',
-    input: 'accent-blue-600',
-    headerBg: 'bg-white/80 border-gray-200',
-    headerBorder: 'border-gray-200',
-    kpiBlock: 'bg-gray-100',
-    barBg: 'bg-gray-200',
-    pillActive: 'bg-blue-600 text-white',
-    pillInactive: 'text-gray-500 hover:text-gray-800 hover:bg-gray-100',
+    bg: 'bg-[#fffff0] text-slate-800',
+    text: 'text-slate-800',
+    textMuted: 'text-slate-500',
+    textDimmed: 'text-slate-400',
+    card: 'bg-white border-slate-200 shadow-sm',
+    cardBorder: 'border-slate-200',
+    accent: 'text-teal-600',
+    accentBg: 'bg-teal-50',
+    accentMuted: 'bg-teal-50 text-teal-700',
+    border: 'border-slate-200',
+    input: 'accent-teal-500',
+    headerBg: 'bg-[#fffff0]/90 border-slate-200',
+    headerBorder: 'border-slate-200',
+    kpiBlock: 'bg-slate-50',
+    barBg: 'bg-slate-200',
+    pillActive: 'bg-teal-500 text-white shadow-sm',
+    pillInactive: 'text-slate-500 hover:text-slate-800 hover:bg-white border hover:border-slate-200 border-transparent',
   },
   cold: {
     bg: 'bg-slate-950 text-cyan-50',
@@ -73,28 +63,6 @@ const THEME_CLASS_MAP: Record<Theme, ThemeClasses> = {
 };
 
 export function useTheme() {
-  const [theme, setThemeState] = useState<Theme>('dark');
-
-  // Hydrate from localStorage after mount
-  useEffect(() => {
-    const stored = readStoredTheme();
-    setThemeState(stored);
-    applyThemeClass(stored);
-  }, []);
-
-  const setTheme = useCallback((t: Theme) => {
-    localStorage.setItem(STORAGE_KEY, t);
-    setThemeState(t);
-    applyThemeClass(t);
-  }, []);
-
-  const themeClasses: ThemeClasses = THEME_CLASS_MAP[theme];
-
-  return { theme, setTheme, themeClasses } as const;
-}
-
-function applyThemeClass(theme: Theme) {
-  const el = document.documentElement;
-  el.classList.remove('dark', 'light', 'cold');
-  el.classList.add(theme);
+  const themeClasses: ThemeClasses = THEME_CLASS_MAP.light;
+  return { theme: 'light' as Theme, setTheme: () => {}, themeClasses } as const;
 }

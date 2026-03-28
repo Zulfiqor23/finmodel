@@ -11,9 +11,6 @@ import {
   PRODUCTS,
   LABOR_TIERS,
   PIECE_RATE,
-  BURN_RATE,
-  BASE_POWER,
-  MACHINE_POWER,
   BREAKEVEN_THRESHOLD,
 } from './constants';
 
@@ -52,14 +49,10 @@ export function calculateUnitsPerProduct(
 // 2. Revenue
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function calculateRevenue(units: UnitsPerProduct): RevenueBreakdown {
-  const baseProduct = _getProduct('base');
-  const liteProduct = _getProduct('lite');
-  const proProduct = _getProduct('pro');
-
-  const base = units.base * baseProduct.price;
-  const lite = units.lite * liteProduct.price;
-  const pro = units.pro * proProduct.price;
+export function calculateRevenue(units: UnitsPerProduct, inputs: FactoryInputs): RevenueBreakdown {
+  const base = units.base * inputs.basePrice;
+  const lite = units.lite * inputs.litePrice;
+  const pro = units.pro * inputs.proPrice;
   const total = base + lite + pro;
 
   return { base, lite, pro, total };
@@ -70,15 +63,12 @@ export function calculateRevenue(units: UnitsPerProduct): RevenueBreakdown {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function calculateMaterialCost(
-  units: UnitsPerProduct
+  units: UnitsPerProduct,
+  inputs: FactoryInputs
 ): MaterialCostBreakdown {
-  const baseProduct = _getProduct('base');
-  const liteProduct = _getProduct('lite');
-  const proProduct = _getProduct('pro');
-
-  const base = units.base * baseProduct.materialCost;
-  const lite = units.lite * liteProduct.materialCost;
-  const pro = units.pro * proProduct.materialCost;
+  const base = units.base * inputs.baseMaterialCost;
+  const lite = units.lite * inputs.liteMaterialCost;
+  const pro = units.pro * inputs.proMaterialCost;
   const total = base + lite + pro;
 
   return { base, lite, pro, total };
@@ -106,16 +96,16 @@ export function calculateLaborTier(unitsPerDay: number): LaborTier {
 
 export function calculateLaborCost(
   unitsPerDay: number,
-  workdaysPerMonth: number
+  inputs: FactoryInputs
 ): LaborCostBreakdown {
   const tier = calculateLaborTier(unitsPerDay);
   const dailyWageCost =
-    (tier.workerCount * tier.wagePerWorker) / workdaysPerMonth;
+    (tier.workerCount * inputs.workerWage) / inputs.workdaysPerMonth;
   const dailyPieceRateCost = tier.pieceRateApplies
     ? unitsPerDay * PIECE_RATE
     : 0;
   const totalDailyCost = dailyWageCost + dailyPieceRateCost;
-  const totalMonthlyCost = totalDailyCost * workdaysPerMonth;
+  const totalMonthlyCost = totalDailyCost * inputs.workdaysPerMonth;
 
   return {
     tier,
@@ -131,9 +121,9 @@ export function calculateLaborCost(
 // 6. Electricity
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function calculateElectricity(shiftHours: number): ElectricityCost {
-  const basePower = BASE_POWER;
-  const machinePower = MACHINE_POWER * (shiftHours / 10);
+export function calculateElectricity(inputs: FactoryInputs): ElectricityCost {
+  const basePower = inputs.basePowerCost;
+  const machinePower = inputs.machinePowerCost * (inputs.shiftHours / 10);
   const totalDaily = basePower + machinePower;
   return { basePower, machinePower, totalDaily };
 }
@@ -143,16 +133,12 @@ export function calculateElectricity(shiftHours: number): ElectricityCost {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function calculateOverhead(
-  shiftHours: number,
-  unitsPerDay: number,
-  efficiency: number,
-  monthlyRent: number,
-  workdaysPerMonth: number
+  inputs: FactoryInputs
 ): OverheadBreakdown {
-  const dailyBurnRate = BURN_RATE * shiftHours;
-  const dailyRentAllocation = monthlyRent / workdaysPerMonth;
+  const dailyBurnRate = inputs.burnRatePerHour * inputs.shiftHours;
+  const dailyRentAllocation = inputs.monthlyRent / inputs.workdaysPerMonth;
   const totalDailyFixed = dailyBurnRate + dailyRentAllocation;
-  const effectiveUnits = unitsPerDay * efficiency;
+  const effectiveUnits = inputs.unitsPerDay * inputs.efficiency;
   const overheadPerUnit = effectiveUnits > 0 ? totalDailyFixed / effectiveUnits : 0;
 
   return { dailyBurnRate, dailyRentAllocation, totalDailyFixed, overheadPerUnit };
@@ -166,18 +152,23 @@ export function calculateUnitCostBreakdown(
   labor: LaborCostBreakdown,
   electricity: ElectricityCost,
   overhead: OverheadBreakdown,
-  units: UnitsPerProduct
+  units: UnitsPerProduct,
+  inputs: FactoryInputs
 ): UnitCostBreakdown[] {
   const totalUnits = units.base + units.lite + units.pro;
   const electricityPerUnit = totalUnits > 0 ? electricity.totalDaily / totalUnits : 0;
 
   return PRODUCTS.map((product) => {
-    const material = product.materialCost;
+    let material = 0;
+    let sellingPrice = 0;
+    if (product.sku === 'base') { material = inputs.baseMaterialCost; sellingPrice = inputs.basePrice; }
+    if (product.sku === 'lite') { material = inputs.liteMaterialCost; sellingPrice = inputs.litePrice; }
+    if (product.sku === 'pro') { material = inputs.proMaterialCost; sellingPrice = inputs.proPrice; }
+
     const laborCost = product.laborPerUnit + (labor.tier.pieceRateApplies ? PIECE_RATE : 0);
     const elec = electricityPerUnit;
     const oh = overhead.overheadPerUnit;
     const totalCost = material + laborCost + elec + oh;
-    const sellingPrice = product.price;
     const grossMargin = sellingPrice - totalCost;
     const grossMarginPct = sellingPrice > 0 ? (grossMargin / sellingPrice) * 100 : 0;
 
@@ -199,10 +190,14 @@ export function calculateUnitCostBreakdown(
 // 9. Contribution margins
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function calculateContributionMargins(): ContributionMargins {
-  const base = _getProduct('base').contributionMargin;
-  const lite = _getProduct('lite').contributionMargin;
-  const pro = _getProduct('pro').contributionMargin;
+export function calculateContributionMargins(inputs: FactoryInputs): ContributionMargins {
+  const baseLabor = _getProduct('base').laborPerUnit;
+  const liteLabor = _getProduct('lite').laborPerUnit;
+  const proLabor = _getProduct('pro').laborPerUnit;
+
+  const base = inputs.basePrice - inputs.baseMaterialCost - baseLabor;
+  const lite = inputs.litePrice - inputs.liteMaterialCost - liteLabor;
+  const pro = inputs.proPrice - inputs.proMaterialCost - proLabor;
   return { base, lite, pro };
 }
 
@@ -225,9 +220,9 @@ export function calculateBreakeven(unitsPerDay: number): BreakevenResult {
 
 export function generateMarketingAdvice(
   units: UnitsPerProduct,
-  unitsPerDay: number
+  inputs: FactoryInputs
 ): MarketingAdvice {
-  const cms = calculateContributionMargins();
+  const cms = calculateContributionMargins(inputs);
   const skus: ProductSku[] = ['base', 'lite', 'pro'];
 
   const scores: Record<ProductSku, number> = {
@@ -237,7 +232,7 @@ export function generateMarketingAdvice(
   };
 
   for (const sku of skus) {
-    const volumeShare = unitsPerDay > 0 ? units[sku] / unitsPerDay : 0;
+    const volumeShare = inputs.unitsPerDay > 0 ? units[sku] / inputs.unitsPerDay : 0;
     scores[sku] = cms[sku] * volumeShare;
   }
 
@@ -251,7 +246,7 @@ export function generateMarketingAdvice(
   }
 
   const product = _getProduct(recommendedSku);
-  const rationale = `Focus on ${product.label}: highest weighted contribution margin of $${maxScore.toFixed(2)} (CM $${cms[recommendedSku].toFixed(2)} x ${((unitsPerDay > 0 ? units[recommendedSku] / unitsPerDay : 0) * 100).toFixed(0)}% volume share).`;
+  const rationale = `Focus on ${product.label}: highest weighted contribution margin of $${maxScore.toFixed(2)} (CM $${cms[recommendedSku].toFixed(2)} x ${((inputs.unitsPerDay > 0 ? units[recommendedSku] / inputs.unitsPerDay : 0) * 100).toFixed(0)}% volume share).`;
 
   return { recommendedSku, scores, rationale };
 }
@@ -262,26 +257,26 @@ export function generateMarketingAdvice(
 
 export function calculateAll(inputs: FactoryInputs): FactoryOutputs {
   const units = calculateUnitsPerProduct(inputs);
-  const revenue = calculateRevenue(units);
-  const materials = calculateMaterialCost(units);
-  const labor = calculateLaborCost(inputs.unitsPerDay, inputs.workdaysPerMonth);
-  const electricity = calculateElectricity(inputs.shiftHours);
-  const overhead = calculateOverhead(
-    inputs.shiftHours,
-    inputs.unitsPerDay,
-    inputs.efficiency,
-    inputs.monthlyRent,
-    inputs.workdaysPerMonth
-  );
-  const unitCosts = calculateUnitCostBreakdown(labor, electricity, overhead, units);
-  const contributionMargins = calculateContributionMargins();
+  const revenue = calculateRevenue(units, inputs);
+  const materials = calculateMaterialCost(units, inputs);
+  const labor = calculateLaborCost(inputs.unitsPerDay, inputs);
+  const electricity = calculateElectricity(inputs);
+  const overhead = calculateOverhead(inputs);
+  const unitCosts = calculateUnitCostBreakdown(labor, electricity, overhead, units, inputs);
+  const contributionMargins = calculateContributionMargins(inputs);
   const breakeven = calculateBreakeven(inputs.unitsPerDay);
-  const marketing = generateMarketingAdvice(units, inputs.unitsPerDay);
+  const marketing = generateMarketingAdvice(units, inputs);
 
   const totalDailyCosts =
     materials.total + labor.totalDailyCost + electricity.totalDaily + overhead.totalDailyFixed;
   const dailyProfit = revenue.total - totalDailyCosts;
   const monthlyProfit = dailyProfit * inputs.workdaysPerMonth;
+
+  // New Global Metrics
+  const cogs = materials.total + labor.totalDailyCost + electricity.machinePower + overhead.dailyBurnRate;
+  const opex = overhead.dailyRentAllocation + electricity.basePower; // OPEX separate from primary COGS
+  const ebitda = revenue.total - cogs - opex; // Simple EBITDA model (excluding Dep/Amort)
+  const roi = totalDailyCosts > 0 ? (dailyProfit / totalDailyCosts) * 100 : 0;
 
   return {
     units,
@@ -296,6 +291,10 @@ export function calculateAll(inputs: FactoryInputs): FactoryOutputs {
     marketing,
     dailyProfit,
     monthlyProfit,
+    cogs,
+    opex,
+    ebitda,
+    roi,
   };
 }
 

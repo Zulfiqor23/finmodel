@@ -37,7 +37,7 @@ export default function LaborProductivityCard({
           {labor.workerCount} {t.workers}
         </span>
         {labor.tier.pieceRateApplies && (
-          <span className="rounded-full bg-amber-500/20 px-3 py-1 text-xs font-semibold text-amber-400">
+          <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 shadow-sm border border-amber-200">
             {t.pieceRate}
           </span>
         )}
@@ -54,7 +54,7 @@ export default function LaborProductivityCard({
       </div>
 
       <p className={`text-xs ${themeClasses.textDimmed}`}>
-        {t.monthly}: ${labor.totalMonthlyCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+        {t.monthly}: ${labor.totalMonthlyCost.toLocaleString('en-US', { maximumFractionDigits: 0 })}
       </p>
     </div>
   );

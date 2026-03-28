@@ -20,9 +20,9 @@ export default function SafetyZoneGauge({ breakeven, t, themeClasses }: SafetyZo
       <div className="flex items-center justify-between">
         <h2 className={`text-lg font-semibold ${themeClasses.text}`}>{t.heading}</h2>
         {isSafe ? (
-          <ShieldCheck className="h-6 w-6 text-emerald-400" />
+          <ShieldCheck className="h-6 w-6 text-emerald-600" />
         ) : (
-          <ShieldAlert className="h-6 w-6 text-red-400" />
+          <ShieldAlert className="h-6 w-6 text-rose-600" />
         )}
       </div>
 
@@ -31,25 +31,25 @@ export default function SafetyZoneGauge({ breakeven, t, themeClasses }: SafetyZo
         <div className={`h-6 w-full rounded-full ${themeClasses.barBg} overflow-hidden`}>
           {/* Danger zone background */}
           <div
-            className="absolute inset-y-0 left-0 bg-red-900/30"
+            className="absolute inset-y-0 left-0 bg-rose-100"
             style={{ width: `${thresholdPct}%` }}
           />
           {/* Safe zone background */}
           <div
-            className="absolute inset-y-0 right-0 bg-emerald-900/20"
+            className="absolute inset-y-0 right-0 bg-emerald-50"
             style={{ left: `${thresholdPct}%` }}
           />
           {/* Current position */}
           <div
             className={`h-6 rounded-full transition-all duration-500 ${
-              isSafe ? 'bg-emerald-500' : 'bg-red-500'
+              isSafe ? 'bg-emerald-500' : 'bg-rose-500'
             }`}
             style={{ width: `${pct}%` }}
           />
         </div>
         {/* Threshold marker */}
         <div
-          className="absolute top-0 h-6 w-0.5 bg-amber-400"
+          className="absolute top-0 h-6 w-0.5 bg-amber-500"
           style={{ left: `${thresholdPct}%` }}
         />
       </div>
@@ -57,7 +57,7 @@ export default function SafetyZoneGauge({ breakeven, t, themeClasses }: SafetyZo
       {/* Labels */}
       <div className="flex items-center justify-between text-xs">
         <span className={themeClasses.textDimmed}>0</span>
-        <span className="font-mono text-amber-400">{threshold} ({t.breakeven})</span>
+        <span className="font-mono font-medium text-amber-600">{threshold} ({t.breakeven})</span>
         <span className={themeClasses.textDimmed}>100</span>
       </div>
 
@@ -65,7 +65,7 @@ export default function SafetyZoneGauge({ breakeven, t, themeClasses }: SafetyZo
       <div className="text-center">
         <p
           className={`font-mono text-2xl font-bold ${
-            isSafe ? 'text-emerald-400' : 'text-red-400'
+            isSafe ? 'text-emerald-600' : 'text-rose-600'
           }`}
         >
           {currentUnits} {t.unitsPerDay}

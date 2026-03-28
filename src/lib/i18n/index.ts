@@ -9,5 +9,6 @@ export type {
   MarketingStrings,
   LanguageSwitcherStrings,
   ThemeSwitcherStrings,
+  DashboardStrings,
 } from './types';
 export { translations } from './translations';
