@@ -41,6 +41,8 @@ const en: Dictionary = {
     wageTypeLabel: 'Wage Type',
     kpiCapacity: 'Daily Capacity / Worker',
     kpiRate: 'Pay / Unit ($)',
+    initialInvestment: 'Initial Investment (Equipment/Setup)',
+    vatRate: 'VAT (QQS) Rate (%)',
   },
   profitability: {
     heading: 'Profitability',
@@ -114,6 +116,10 @@ const en: Dictionary = {
     roi: 'ROI',
     roiTitle: 'Return on Investment',
     roiDesc: 'Percentage ratio of net daily profit to total daily costs.',
+    payback: 'Payback',
+    paybackTitle: 'Payback Period',
+    paybackDesc: 'Estimated number of months to recover the initial investment through net profit.',
+    vat: 'VAT (QQS)',
   },
   aiAnalysis: {
     heading: 'AI Business Intelligence',
@@ -165,6 +171,8 @@ const ru: Dictionary = {
     wageTypeLabel: 'Тип ЗП',
     kpiCapacity: 'Мощность (мод/раб)',
     kpiRate: 'Оплата за модуль',
+    initialInvestment: 'Первоначальные инвестиции (Станки/Оборудование)',
+    vatRate: 'Ставка НДС (QQS) (%)',
   },
   profitability: {
     heading: 'Прибыль',
@@ -238,6 +246,10 @@ const ru: Dictionary = {
     roi: 'ROI',
     roiTitle: 'Окупаемость инвестиций',
     roiDesc: 'Доля ежедневной чистой прибыли к общим ежедневным затратам.',
+    payback: 'Окупаемость',
+    paybackTitle: 'Срок окупаемости',
+    paybackDesc: 'Ориентировочное количество месяцев для возврата первоначальных инвестиций за счет чистой прибыли.',
+    vat: 'НДС (QQS)',
   },
   aiAnalysis: {
     heading: 'ИИ-Бизнес-Аналитика',
@@ -289,6 +301,8 @@ const uz: Dictionary = {
     wageTypeLabel: 'Maosh turi',
     kpiCapacity: 'Odam boshiga quvvat',
     kpiRate: 'Bitta modul uchun maosh',
+    initialInvestment: 'Dastlabki investitsiya (Stanoklar/Uskunalar)',
+    vatRate: 'QQS (VAT) stavkasi (%)',
   },
   profitability: {
     heading: 'Foyda',
@@ -362,6 +376,10 @@ const uz: Dictionary = {
     roi: 'ROI',
     roiTitle: 'Investitsiya foyda ko\'rsatkichi',
     roiDesc: 'Tizim xarajatiga nisbatan kunlik tushadigan real sof foyda miqdori (foizda).',
+    payback: 'O\'zini oqlash',
+    paybackTitle: 'O\'zini oqlash muddati',
+    paybackDesc: 'Dastlabki investitsiyani sof foyda orqali qaytarish uchun taxminiy oylar soni.',
+    vat: 'QQS',
   },
   aiAnalysis: {
     heading: 'AI Biznes Analitikasi',

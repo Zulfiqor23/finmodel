@@ -301,6 +301,8 @@ export default function InputPanel({ inputs, onChange, t, themeClasses }: InputP
         {/* GROUP 4: Operations & Utilities */}
         <AccordionGroup title={t.groupOverhead} icon={Zap} defaultOpen={false} themeClasses={themeClasses}>
           <SliderRow label={t.monthlyRent} value={inputs.monthlyRent} min={1000} max={15000} step={500} format={(v) => `$${v.toLocaleString('en-US')}`} onChange={(v) => onChange('monthlyRent', v)} themeClasses={themeClasses} />
+          <SliderRow label={t.initialInvestment} value={inputs.initialInvestment} min={5000} max={250000} step={5000} format={(v) => `$${v.toLocaleString('en-US')}`} onChange={(v) => onChange('initialInvestment', v)} themeClasses={themeClasses} />
+          <SliderRow label={t.vatRate} value={inputs.vatRate} min={0} max={0.25} step={0.01} format={(v) => `${(v * 100).toFixed(0)}%`} onChange={(v) => onChange('vatRate', v)} themeClasses={themeClasses} />
           <SliderRow label={t.lightingPowerCost} value={inputs.lightingPowerPerHour} min={0} max={50} step={1} format={(v) => `$${v}/h`} onChange={(v) => onChange('lightingPowerPerHour', v)} themeClasses={themeClasses} />
           <SliderRow label={t.equipmentPowerCost} value={inputs.equipmentPowerPerHour} min={5} max={200} step={1} format={(v) => `$${v}/h`} onChange={(v) => onChange('equipmentPowerPerHour', v)} themeClasses={themeClasses} />
           <SliderRow label={t.burnRatePerHour} value={inputs.burnRatePerHour} min={5} max={100} step={1} format={(v) => `$${v}/h`} onChange={(v) => onChange('burnRatePerHour', v)} themeClasses={themeClasses} />

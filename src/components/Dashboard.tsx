@@ -43,6 +43,8 @@ const INITIAL_INPUTS: FactoryInputs = {
   lightingPowerPerHour: 2,
   equipmentPowerPerHour: 8,
   burnRatePerHour: 25,
+  initialInvestment: 50000,
+  vatRate: 0.12,
 };
 
 export default function Dashboard() {

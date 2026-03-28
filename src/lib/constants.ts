@@ -84,12 +84,3 @@ export const WORKDAYS_PER_MONTH = 22;
 export const MONTHLY_RENT = 5_000;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Breakeven
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * Daily unit threshold for profitability.
- * N < BREAKEVEN_THRESHOLD → RED (danger zone)
- * N ≥ BREAKEVEN_THRESHOLD → GREEN (safe zone)
- */
-export const BREAKEVEN_THRESHOLD = 42;

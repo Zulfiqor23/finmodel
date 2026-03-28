@@ -49,6 +49,8 @@ export interface InputPanelStrings {
   wageTypeLabel: string;
   kpiCapacity: string;
   kpiRate: string;
+  initialInvestment: string;
+  vatRate: string;
 }
 
 export interface ProfitabilityStrings {
@@ -142,6 +144,10 @@ export interface DashboardStrings {
   roi: string;
   roiTitle: string;
   roiDesc: string;
+  payback: string;
+  paybackTitle: string;
+  paybackDesc: string;
+  vat: string;
 }
 
 // ─── Aggregate dictionary ────────────────────────────────────────────────────

@@ -76,6 +76,10 @@ export interface FactoryInputs {
   lightingPowerPerHour: number;
   equipmentPowerPerHour: number;
   burnRatePerHour: number;
+  /** Capital Expenditure (CAPEX) - initial cost for machines, facility setup, etc. */
+  initialInvestment: number;
+  /** Value Added Tax (VAT / QQS) rate (0 - 0.20) */
+  vatRate: number;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -204,6 +208,10 @@ export interface FactoryOutputs {
   opex: number;
   /** Earnings Before Interest, Taxes, Depreciation, and Amortization */
   ebitda: number;
-  /** Return on Investment (daily annualized or just monthly) */
+  /** Return on Investment (%) */
   roi: number;
+  /** Number of months to recover the initial investment */
+  paybackMonths: number;
+  /** Calculated monthly VAT payable (Output VAT - Input VAT) */
+  vatMonthly: number;
 }

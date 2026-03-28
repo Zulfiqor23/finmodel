@@ -52,10 +52,30 @@ export default function GlobalMetrics({ outputs, t, themeClasses }: GlobalMetric
       color: 'text-blue-500',
       bg: 'bg-blue-50',
     },
+    {
+      id: 'payback',
+      label: t.payback,
+      title: t.paybackTitle,
+      desc: t.paybackDesc,
+      value: outputs.paybackMonths > 120 ? '> 10 y' : `${outputs.paybackMonths.toFixed(1)} m`,
+      icon: TrendingUp,
+      color: 'text-indigo-500',
+      bg: 'bg-indigo-50',
+    },
+    {
+      id: 'vat',
+      label: t.vat,
+      title: t.vat,
+      desc: 'Estimated monthly VAT (QQS) payable.',
+      value: `$${outputs.vatMonthly.toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
+      icon: PieChart,
+      color: 'text-cyan-500',
+      bg: 'bg-cyan-50',
+    },
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+    <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
       {metrics.map((m) => {
         const Icon = m.icon;
         return (

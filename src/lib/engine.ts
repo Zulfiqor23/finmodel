@@ -9,7 +9,6 @@
 
 import {
   PRODUCTS,
-  BREAKEVEN_THRESHOLD,
 } from './constants';
 
 import type {
@@ -216,12 +215,64 @@ export function calculateContributionMargins(inputs: FactoryInputs): Contributio
 // 10. Breakeven analysis
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function calculateBreakeven(unitsPerDay: number): BreakevenResult {
+export function calculateBreakeven(
+  inputs: FactoryInputs,
+  labor: LaborCostBreakdown,
+  electricity: ElectricityCost,
+  overhead: OverheadBreakdown,
+  unitCosts: UnitCostBreakdown[]
+): BreakevenResult {
+  // 1. Fixed Daily Costs
+  const fixedLabor = 
+    (inputs.salesLabor.wageType === 'fixed' ? labor.sales.dailyCost : 0) +
+    (inputs.techLabor.wageType === 'fixed' ? labor.tech.dailyCost : 0) +
+    (inputs.prodLabor.wageType === 'fixed' ? labor.prod.dailyCost : 0) +
+    (inputs.logisticsLabor.wageType === 'fixed' ? labor.logistics.dailyCost : 0);
+
+  const totalDailyFixed = fixedLabor + electricity.lightingPower + overhead.dailyRentAllocation + overhead.dailyBurnRate;
+
+  // 2. Average Weighted Contribution Margin per Unit
+  // CM = Price(eff) - Material - KPI Labor - EquipmentElecPerUnit
+  const totalUnits = unitCosts.reduce((acc, curr, idx) => {
+    // We need the weights from the actual daily units
+    // This is a bit tricky if total units is 0, we'll use 1 as default mix
+    return acc + 1; // dummy for now, better to pass units
+  }, 0);
+
+  // Better approach: calculate average CM across the mix
+  let totalMarginPotential = 0;
+  unitCosts.forEach((uc) => {
+     // Variable labor for this SKU
+     const isSalesKpi = inputs.salesLabor.wageType === 'kpi';
+     const isTechKpi = inputs.techLabor.wageType === 'kpi';
+     const isProdKpi = inputs.prodLabor.wageType === 'kpi';
+     const isLogKpi = inputs.logisticsLabor.wageType === 'kpi';
+
+     const varLabor = 
+       (isSalesKpi ? inputs.salesLabor.kpiRate : 0) +
+       (isTechKpi ? inputs.techLabor.kpiRate : 0) +
+       (isProdKpi ? inputs.prodLabor.kpiRate : 0) +
+       (isLogKpi ? inputs.logisticsLabor.kpiRate : 0);
+     
+     const equipmentPowerPerUnit = inputs.unitsPerDay > 0 ? electricity.equipmentPower / inputs.unitsPerDay : 0;
+     const unitContribution = uc.sellingPrice - uc.material - varLabor - equipmentPowerPerUnit;
+     
+     // weight by mix
+     let mix = 0;
+     if (uc.sku === 'base') mix = inputs.baseMix;
+     if (uc.sku === 'lite') mix = inputs.liteMix;
+     if (uc.sku === 'pro') mix = inputs.proMix;
+     
+     totalMarginPotential += unitContribution * mix;
+  });
+
+  const threshold = totalMarginPotential > 0 ? Math.ceil(totalDailyFixed / totalMarginPotential) : 0;
+
   return {
-    threshold: BREAKEVEN_THRESHOLD,
-    currentUnits: unitsPerDay,
-    isSafe: unitsPerDay >= BREAKEVEN_THRESHOLD,
-    unitsFromBreakeven: unitsPerDay - BREAKEVEN_THRESHOLD,
+    threshold,
+    currentUnits: inputs.unitsPerDay,
+    isSafe: inputs.unitsPerDay >= threshold,
+    unitsFromBreakeven: inputs.unitsPerDay - threshold,
   };
 }
 
@@ -275,19 +326,32 @@ export function calculateAll(inputs: FactoryInputs): FactoryOutputs {
   const overhead = calculateOverhead(inputs);
   const unitCosts = calculateUnitCostBreakdown(labor, electricity, overhead, units, inputs);
   const contributionMargins = calculateContributionMargins(inputs);
-  const breakeven = calculateBreakeven(inputs.unitsPerDay);
+  
+  const breakeven = calculateBreakeven(inputs, labor, electricity, overhead, unitCosts);
   const marketing = generateMarketingAdvice(units, inputs);
 
   const totalDailyCosts =
     materials.total + labor.totalDailyCost + electricity.totalDaily + overhead.totalDailyFixed;
-  const dailyProfit = revenue.total - totalDailyCosts;
+  
+  // VAT (QQS) — assume inputs are gross. VAT is payable on the added value.
+  // Taxable basis = Revenue - Materials - Utilities - BurnRate
+  const taxableBasisDaily = revenue.total - materials.total - electricity.totalDaily - overhead.dailyBurnRate;
+  const dailyVat = taxableBasisDaily > 0 ? taxableBasisDaily * (inputs.vatRate / (1 + inputs.vatRate)) : 0;
+  const vatMonthly = dailyVat * inputs.workdaysPerMonth;
+
+  const dailyProfit = revenue.total - totalDailyCosts - dailyVat;
   const monthlyProfit = dailyProfit * inputs.workdaysPerMonth;
 
   // New Global Metrics
   const cogs = materials.total + labor.totalDailyCost + electricity.equipmentPower + overhead.dailyBurnRate;
   const opex = overhead.dailyRentAllocation + electricity.lightingPower; // OPEX separate from primary COGS
-  const ebitda = revenue.total - cogs - opex; // Simple EBITDA model (excluding Dep/Amort)
+  
+  // Adjusted EBITDA (after VAT, since VAT is a direct operational tax in many models, 
+  // though strictly EBITDA is before "Taxes", VAT is usually an adjustment to Revenue/COGS)
+  const ebitda = revenue.total - cogs - opex - dailyVat; 
+  
   const roi = totalDailyCosts > 0 ? (dailyProfit / totalDailyCosts) * 100 : 0;
+  const paybackMonths = dailyProfit > 0 ? inputs.initialInvestment / (dailyProfit * inputs.workdaysPerMonth) : 999;
 
   return {
     units,
@@ -306,6 +370,8 @@ export function calculateAll(inputs: FactoryInputs): FactoryOutputs {
     opex,
     ebitda,
     roi,
+    paybackMonths,
+    vatMonthly,
   };
 }
 
