@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Sliders, Settings2, PackageCheck, Zap, ChevronDown, Users2 } from 'lucide-react';
 import type { FactoryInputs, DepartmentInput } from '@/lib/types';
 import type { InputPanelStrings, ThemeClasses } from '@/lib/i18n/types';
+import { formatMoney } from '@/lib/format';
 
 interface InputPanelProps {
   inputs: FactoryInputs;
@@ -278,16 +279,16 @@ export default function InputPanel({ inputs, onChange, t, themeClasses }: InputP
 
         {/* GROUP 2: Prices & Materials */}
         <AccordionGroup title={t.groupMaterials} icon={PackageCheck} defaultOpen={false} themeClasses={themeClasses}>
-          <SliderRow label={t.basePrice} value={inputs.basePrice} min={100} max={1000} step={10} format={(v) => `$${v}`} onChange={(v) => onChange('basePrice', v)} themeClasses={themeClasses} />
-          <SliderRow label={t.baseMaterialCost} value={inputs.baseMaterialCost} min={50} max={500} step={10} format={(v) => `$${v}`} onChange={(v) => onChange('baseMaterialCost', v)} themeClasses={themeClasses} />
+          <SliderRow label={t.basePrice} value={inputs.basePrice} min={100} max={1000} step={10} format={(v) => `$${formatMoney(v)}`} onChange={(v) => onChange('basePrice', v)} themeClasses={themeClasses} />
+          <SliderRow label={t.baseMaterialCost} value={inputs.baseMaterialCost} min={50} max={500} step={10} format={(v) => `$${formatMoney(v)}`} onChange={(v) => onChange('baseMaterialCost', v)} themeClasses={themeClasses} />
           
           <div className={`my-2 border-t ${themeClasses.cardBorder}`} />
-          <SliderRow label={t.litePrice} value={inputs.litePrice} min={200} max={1500} step={10} format={(v) => `$${v}`} onChange={(v) => onChange('litePrice', v)} themeClasses={themeClasses} />
-          <SliderRow label={t.liteMaterialCost} value={inputs.liteMaterialCost} min={100} max={800} step={10} format={(v) => `$${v}`} onChange={(v) => onChange('liteMaterialCost', v)} themeClasses={themeClasses} />
+          <SliderRow label={t.litePrice} value={inputs.litePrice} min={200} max={1500} step={10} format={(v) => `$${formatMoney(v)}`} onChange={(v) => onChange('litePrice', v)} themeClasses={themeClasses} />
+          <SliderRow label={t.liteMaterialCost} value={inputs.liteMaterialCost} min={100} max={800} step={10} format={(v) => `$${formatMoney(v)}`} onChange={(v) => onChange('liteMaterialCost', v)} themeClasses={themeClasses} />
           
           <div className={`my-2 border-t ${themeClasses.cardBorder}`} />
-          <SliderRow label={t.proPrice} value={inputs.proPrice} min={300} max={3000} step={50} format={(v) => `$${v}`} onChange={(v) => onChange('proPrice', v)} themeClasses={themeClasses} />
-          <SliderRow label={t.proMaterialCost} value={inputs.proMaterialCost} min={150} max={1500} step={10} format={(v) => `$${v}`} onChange={(v) => onChange('proMaterialCost', v)} themeClasses={themeClasses} />
+          <SliderRow label={t.proPrice} value={inputs.proPrice} min={300} max={3000} step={50} format={(v) => `$${formatMoney(v)}`} onChange={(v) => onChange('proPrice', v)} themeClasses={themeClasses} />
+          <SliderRow label={t.proMaterialCost} value={inputs.proMaterialCost} min={150} max={1500} step={10} format={(v) => `$${formatMoney(v)}`} onChange={(v) => onChange('proMaterialCost', v)} themeClasses={themeClasses} />
         </AccordionGroup>
         
         {/* GROUP 3: Departments */}
@@ -300,8 +301,8 @@ export default function InputPanel({ inputs, onChange, t, themeClasses }: InputP
 
         {/* GROUP 4: Operations & Utilities */}
         <AccordionGroup title={t.groupOverhead} icon={Zap} defaultOpen={false} themeClasses={themeClasses}>
-          <SliderRow label={t.monthlyRent} value={inputs.monthlyRent} min={1000} max={15000} step={500} format={(v) => `$${v.toLocaleString('en-US')}`} onChange={(v) => onChange('monthlyRent', v)} themeClasses={themeClasses} />
-          <SliderRow label={t.initialInvestment} value={inputs.initialInvestment} min={5000} max={250000} step={5000} format={(v) => `$${v.toLocaleString('en-US')}`} onChange={(v) => onChange('initialInvestment', v)} themeClasses={themeClasses} />
+          <SliderRow label={t.monthlyRent} value={inputs.monthlyRent} min={1000} max={15000} step={500} format={(v) => `$${formatMoney(v)}`} onChange={(v) => onChange('monthlyRent', v)} themeClasses={themeClasses} />
+          <SliderRow label={t.initialInvestment} value={inputs.initialInvestment} min={100000} max={3000000} step={50000} format={(v) => `$${formatMoney(v)}`} onChange={(v) => onChange('initialInvestment', v)} themeClasses={themeClasses} />
           <SliderRow label={t.vatRate} value={inputs.vatRate} min={0} max={0.25} step={0.01} format={(v) => `${(v * 100).toFixed(0)}%`} onChange={(v) => onChange('vatRate', v)} themeClasses={themeClasses} />
           <SliderRow label={t.lightingPowerCost} value={inputs.lightingPowerPerHour} min={0} max={50} step={1} format={(v) => `$${v}/h`} onChange={(v) => onChange('lightingPowerPerHour', v)} themeClasses={themeClasses} />
           <SliderRow label={t.equipmentPowerCost} value={inputs.equipmentPowerPerHour} min={5} max={200} step={1} format={(v) => `$${v}/h`} onChange={(v) => onChange('equipmentPowerPerHour', v)} themeClasses={themeClasses} />

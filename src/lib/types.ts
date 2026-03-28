@@ -214,4 +214,8 @@ export interface FactoryOutputs {
   paybackMonths: number;
   /** Calculated monthly VAT payable (Output VAT - Input VAT) */
   vatMonthly: number;
+  /** Monthly adjusted metrics */
+  cogsMonthly: number;
+  opexMonthly: number;
+  ebitdaMonthly: number;
 }

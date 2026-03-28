@@ -3,6 +3,7 @@
 import { Users } from 'lucide-react';
 import type { LaborCostBreakdown } from '@/lib/types';
 import type { LaborCardStrings, ThemeClasses } from '@/lib/i18n/types';
+import { formatMoney } from '@/lib/format';
 
 interface LaborProductivityCardProps {
   labor: LaborCostBreakdown;
@@ -31,21 +32,21 @@ export default function LaborProductivityCard({
 
       {/* KPI grid for 4 departments + totals */}
       <div className="grid grid-cols-2 gap-3">
-        <KPIBlock label={t.salesDept} value={`$${labor.sales.dailyCost.toFixed(0)}/d`} themeClasses={themeClasses} />
-        <KPIBlock label={t.techDept} value={`$${labor.tech.dailyCost.toFixed(0)}/d`} themeClasses={themeClasses} />
-        <KPIBlock label={t.prodDept} value={`$${labor.prod.dailyCost.toFixed(0)}/d`} themeClasses={themeClasses} />
-        <KPIBlock label={t.logisticsDept} value={`$${labor.logistics.dailyCost.toFixed(0)}/d`} themeClasses={themeClasses} />
+        <KPIBlock label={t.salesDept} value={`$${formatMoney(labor.sales.dailyCost)}/d`} themeClasses={themeClasses} />
+        <KPIBlock label={t.techDept} value={`$${formatMoney(labor.tech.dailyCost)}/d`} themeClasses={themeClasses} />
+        <KPIBlock label={t.prodDept} value={`$${formatMoney(labor.prod.dailyCost)}/d`} themeClasses={themeClasses} />
+        <KPIBlock label={t.logisticsDept} value={`$${formatMoney(labor.logistics.dailyCost)}/d`} themeClasses={themeClasses} />
       </div>
 
       <div className={`my-2 border-t ${themeClasses.cardBorder}`} />
 
       <div className="grid grid-cols-2 gap-3">
-        <KPIBlock label={t.dailyLaborCost} value={`$${labor.totalDailyCost.toFixed(0)}`} themeClasses={themeClasses} />
+        <KPIBlock label={t.dailyLaborCost} value={`$${formatMoney(labor.totalDailyCost)}`} themeClasses={themeClasses} />
         <KPIBlock label={t.laborPerUnit} value={`$${laborCostPerUnit.toFixed(2)}`} themeClasses={themeClasses} />
       </div>
 
       <p className={`text-xs ${themeClasses.textDimmed} text-right`}>
-        {t.monthly}: ${labor.totalMonthlyCost.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+        {t.monthly}: ${formatMoney(labor.totalMonthlyCost)}
       </p>
     </div>
   );

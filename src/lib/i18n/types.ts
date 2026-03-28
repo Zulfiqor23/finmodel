@@ -68,6 +68,7 @@ export interface BreakevenStrings {
   heading: string;
   breakeven: string;
   unitsPerDay: string;
+  breakevenDesc: string;
   aboveBreakeven: string;
   belowBreakeven: string;
 }

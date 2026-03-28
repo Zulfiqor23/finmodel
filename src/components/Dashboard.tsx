@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { Factory } from 'lucide-react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { Factory, Cloud, CheckCircle2, CloudFog } from 'lucide-react';
 import { useFactoryCalculations } from '@/hooks/useFactoryCalculations';
 import { useLocale } from '@/hooks/useLocale';
 import { useTheme } from '@/hooks/useTheme';
@@ -17,8 +17,6 @@ import AIAnalysis from './AIAnalysis';
 import LanguageSwitcher from './LanguageSwitcher';
 import ThemeSwitcher from './ThemeSwitcher';
 import { supabase } from '@/lib/supabase';
-import { Cloud, CheckCircle2 } from 'lucide-react';
-import { useEffect } from 'react';
 
 const INITIAL_INPUTS: FactoryInputs = {
   unitsPerDay: 50,
@@ -43,7 +41,7 @@ const INITIAL_INPUTS: FactoryInputs = {
   lightingPowerPerHour: 2,
   equipmentPowerPerHour: 8,
   burnRatePerHour: 25,
-  initialInvestment: 50000,
+  initialInvestment: 500000,
   vatRate: 0.12,
 };
 
@@ -51,6 +49,7 @@ export default function Dashboard() {
   const [inputs, setInputs] = useState<FactoryInputs>(INITIAL_INPUTS);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const outputs = useFactoryCalculations(inputs);
   const { locale, setLocale, t } = useLocale();
@@ -70,8 +69,10 @@ export default function Dashboard() {
           // Merge to ensure no missing keys from old saves
           setInputs(prev => ({ ...prev, ...data.inputs }));
         }
+        setIsLoaded(true);
       } catch (e) {
         console.error("Failed to load cloud data", e);
+        setIsLoaded(true);
       }
     }
     loadData();
@@ -114,6 +115,17 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            {isLoaded ? (
+              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-medium border border-emerald-100">
+                <CheckCircle2 className="h-3 w-3" />
+                Cloud Synced
+              </div>
+            ) : (
+              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-medium border border-slate-200 animate-pulse">
+                <CloudFog className="h-3 w-3" />
+                Loading...
+              </div>
+            )}
             <LanguageSwitcher
               locale={locale}
               setLocale={setLocale}

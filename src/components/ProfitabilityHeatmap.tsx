@@ -3,6 +3,7 @@
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import type { FactoryOutputs } from '@/lib/types';
 import type { ProfitabilityStrings, ThemeClasses } from '@/lib/i18n';
+import { formatMoney } from '@/lib/format';
 
 interface ProfitabilityHeatmapProps {
   outputs: FactoryOutputs;
@@ -46,11 +47,11 @@ export default function ProfitabilityHeatmap({
               isPositive ? 'text-emerald-600' : 'text-rose-600'
             }`}
           >
-            ${Math.abs(dailyProfit).toLocaleString('en-US', { maximumFractionDigits: 0 })}
+            ${formatMoney(Math.abs(dailyProfit))}
             <span className={`text-base font-normal ${themeClasses.textDimmed}`}>{t.perDay}</span>
           </p>
           <p className={`font-mono text-sm ${themeClasses.textDimmed}`}>
-            ${Math.abs(monthlyProfit).toLocaleString('en-US', { maximumFractionDigits: 0 })}
+            ${formatMoney(Math.abs(monthlyProfit))}
             {t.perMonth} ({workdaysPerMonth}d)
           </p>
         </div>
@@ -67,7 +68,7 @@ export default function ProfitabilityHeatmap({
                 <span className={themeClasses.textMuted}>{row.label}</span>
                 <span className={`font-mono ${row.color}`}>
                   {row.daily >= 0 ? '+' : ''}
-                  ${row.daily.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                  ${formatMoney(row.daily)}
                 </span>
               </div>
               <div className={`h-2 w-full rounded-full ${themeClasses.barBg}`}>

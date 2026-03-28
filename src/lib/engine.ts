@@ -372,6 +372,9 @@ export function calculateAll(inputs: FactoryInputs): FactoryOutputs {
     roi,
     paybackMonths,
     vatMonthly,
+    cogsMonthly: cogs * inputs.workdaysPerMonth,
+    opexMonthly: opex * inputs.workdaysPerMonth,
+    ebitdaMonthly: ebitda * inputs.workdaysPerMonth,
   };
 }
 

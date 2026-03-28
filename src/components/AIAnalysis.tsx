@@ -3,6 +3,7 @@
 import { Bot } from 'lucide-react';
 import type { FactoryInputs, FactoryOutputs } from '@/lib/types';
 import type { ThemeClasses, AIAnalysisStrings } from '@/lib/i18n/types';
+import { formatMoney } from '@/lib/format';
 
 interface AIAnalysisProps {
   inputs: FactoryInputs;
@@ -25,7 +26,7 @@ export default function AIAnalysis({ inputs, outputs, themeClasses, t }: AIAnaly
   } else if (roi > 0) {
     insights.push(t.lowMargin(roi.toFixed(1)));
   } else {
-    insights.push(t.criticalLoss(Math.abs(outputs.dailyProfit).toLocaleString()));
+    insights.push(t.criticalLoss(formatMoney(Math.abs(outputs.dailyProfit))));
   }
 
   if (!breakEvenStatus) {
@@ -33,7 +34,7 @@ export default function AIAnalysis({ inputs, outputs, themeClasses, t }: AIAnaly
   }
 
   if (inputs.defectRate > 0.05) {
-     insights.push(t.qualityControl((inputs.defectRate * 100).toFixed(1), defectLoss.toFixed(0)));
+     insights.push(t.qualityControl((inputs.defectRate * 100).toFixed(1), formatMoney(defectLoss)));
   }
 
   if (outputs.unitCosts[2].grossMarginPct < 20) {

@@ -1,8 +1,9 @@
 'use client';
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, LabelList } from 'recharts';
 import type { UnitCostBreakdown, ProductSku } from '@/lib/types';
 import type { UnitCostStrings, ThemeClasses } from '@/lib/i18n';
+import { formatMoney } from '@/lib/format';
 
 interface UnitCostDonutProps {
   unitCosts: UnitCostBreakdown[];
@@ -43,7 +44,7 @@ function CustomTooltip({
     <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs shadow-md">
       <p className="text-slate-500 font-medium mb-1">{entry.name}</p>
       <p className="font-mono font-bold" style={{ color: entry.payload.fill }}>
-        ${entry.value.toFixed(2)}
+        ${formatMoney(entry.value)}
       </p>
     </div>
   );
@@ -78,21 +79,34 @@ export default function UnitCostDonut({ unitCosts, t, themeClasses }: UnitCostDo
               >
                 {uc.sku.charAt(0).toUpperCase() + uc.sku.slice(1)}
               </p>
-              <ResponsiveContainer width="100%" height={140}>
+                  <ResponsiveContainer width="100%" height={160}>
                 <PieChart>
                   <Pie
                     data={data}
                     cx="50%"
                     cy="50%"
-                    innerRadius={35}
+                    innerRadius={0}
                     outerRadius={55}
-                    paddingAngle={2}
+                    paddingAngle={0}
                     dataKey="value"
-                    stroke="none"
+                    stroke="#fff"
+                    strokeWidth={1}
                   >
                     {data.map((_, i) => (
                       <Cell key={i} fill={COST_COLORS[i]} />
                     ))}
+                    <LabelList 
+                      dataKey="value" 
+                      position="inside" 
+                      fill="#fff" 
+                      fontSize={10} 
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      formatter={(val: any) => {
+                        const total = data.reduce((acc, d) => acc + d.value, 0);
+                        const numericVal = Number(val) || 0;
+                        return total > 0 && numericVal > 0 ? `${((numericVal / total) * 100).toFixed(0)}%` : '';
+                      }}
+                    />
                   </Pie>
                   <Tooltip content={<CustomTooltip />} />
                 </PieChart>
@@ -101,7 +115,7 @@ export default function UnitCostDonut({ unitCosts, t, themeClasses }: UnitCostDo
                 <p className={themeClasses.textMuted}>
                   {t.cost}{' '}
                   <span className={`font-mono ${themeClasses.text}`}>
-                    ${uc.totalCost.toFixed(2)}
+                    ${formatMoney(uc.totalCost)}
                   </span>
                 </p>
                 <p className={themeClasses.textMuted}>

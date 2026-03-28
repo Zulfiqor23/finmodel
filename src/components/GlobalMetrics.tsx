@@ -3,6 +3,7 @@
 import { Activity, DollarSign, PieChart, TrendingUp } from 'lucide-react';
 import type { FactoryOutputs } from '@/lib/types';
 import type { DashboardStrings, ThemeClasses } from '@/lib/i18n';
+import { formatCurrency } from '@/lib/format';
 
 interface GlobalMetricsProps {
   outputs: FactoryOutputs;
@@ -17,7 +18,7 @@ export default function GlobalMetrics({ outputs, t, themeClasses }: GlobalMetric
       label: t.cogs,
       title: t.cogsTitle,
       desc: t.cogsDesc,
-      value: `$${outputs.cogs.toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
+      value: formatCurrency(outputs.cogsMonthly),
       icon: PieChart,
       color: 'text-rose-500',
       bg: 'bg-rose-50',
@@ -27,7 +28,7 @@ export default function GlobalMetrics({ outputs, t, themeClasses }: GlobalMetric
       label: t.opex,
       title: t.opexTitle,
       desc: t.opexDesc,
-      value: `$${outputs.opex.toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
+      value: formatCurrency(outputs.opexMonthly),
       icon: Activity,
       color: 'text-amber-500',
       bg: 'bg-amber-50',
@@ -37,7 +38,7 @@ export default function GlobalMetrics({ outputs, t, themeClasses }: GlobalMetric
       label: t.ebitda,
       title: t.ebitdaTitle,
       desc: t.ebitdaDesc,
-      value: `$${outputs.ebitda.toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
+      value: formatCurrency(outputs.ebitdaMonthly),
       icon: DollarSign,
       color: 'text-emerald-500',
       bg: 'bg-emerald-50',
@@ -67,7 +68,7 @@ export default function GlobalMetrics({ outputs, t, themeClasses }: GlobalMetric
       label: t.vat,
       title: t.vat,
       desc: 'Estimated monthly VAT (QQS) payable.',
-      value: `$${outputs.vatMonthly.toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
+      value: formatCurrency(outputs.vatMonthly),
       icon: PieChart,
       color: 'text-cyan-500',
       bg: 'bg-cyan-50',
