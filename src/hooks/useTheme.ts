@@ -52,23 +52,23 @@ const THEME_CLASS_MAP: Record<Theme, ThemeClasses> = {
     pillInactive: 'text-slate-500 hover:text-slate-800 hover:bg-white border hover:border-slate-200 border-transparent',
   },
   cold: {
-    bg: 'bg-slate-950 text-cyan-50',
-    text: 'text-cyan-50',
-    textMuted: 'text-slate-400',
-    textDimmed: 'text-slate-500',
-    card: 'bg-slate-900 border-slate-700',
-    cardBorder: 'border-slate-700',
-    accent: 'text-cyan-400',
-    accentBg: 'bg-cyan-500',
-    accentMuted: 'bg-cyan-500/20 text-cyan-400',
-    border: 'border-slate-700',
-    input: 'accent-cyan-500',
-    headerBg: 'bg-slate-950/80 border-slate-700',
-    headerBorder: 'border-slate-700',
-    kpiBlock: 'bg-slate-800/60',
-    barBg: 'bg-slate-800',
-    pillActive: 'bg-cyan-500 text-slate-950',
-    pillInactive: 'text-slate-400 hover:text-cyan-300 hover:bg-slate-800',
+    bg: 'bg-slate-50 text-slate-800',
+    text: 'text-slate-800',
+    textMuted: 'text-slate-500',
+    textDimmed: 'text-slate-400',
+    card: 'bg-white border-slate-200 shadow-sm',
+    cardBorder: 'border-slate-200',
+    accent: 'text-blue-600',
+    accentBg: 'bg-blue-50',
+    accentMuted: 'bg-orange-50 text-orange-600',
+    border: 'border-slate-200',
+    input: 'accent-green-500',
+    headerBg: 'bg-slate-50/90 border-slate-200',
+    headerBorder: 'border-slate-200',
+    kpiBlock: 'bg-slate-100',
+    barBg: 'bg-slate-200',
+    pillActive: 'bg-blue-500 text-white shadow-sm',
+    pillInactive: 'text-slate-500 hover:text-slate-800 hover:bg-white border hover:border-slate-200 border-transparent',
   },
 };
 
@@ -104,8 +104,8 @@ function applyThemeClass(theme: Theme) {
       document.body.style.backgroundColor = '#0a0a0a';
       document.body.style.color = '#ededed';
     } else if (theme === 'cold') {
-      document.body.style.backgroundColor = '#020617';
-      document.body.style.color = '#f8fafc';
+      document.body.style.backgroundColor = '#f8fafc';
+      document.body.style.color = '#1e293b';
     } else {
       document.body.style.backgroundColor = '#fffff0'; // Ivory
       document.body.style.color = '#1e293b';
