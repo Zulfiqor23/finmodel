@@ -36,11 +36,19 @@ export interface InputPanelStrings {
   liteMaterialCost: string;
   proMaterialCost: string;
   // Overhead / Labor inputs
-  workerWage: string;
   monthlyRent: string;
-  basePowerCost: string;
-  machinePowerCost: string;
+  lightingPowerCost: string;
+  equipmentPowerCost: string;
   burnRatePerHour: string;
+  defectRate: string;
+  groupDepartments: string;
+  salesLabor: string;
+  techLabor: string;
+  prodLabor: string;
+  logisticsLabor: string;
+  wageTypeLabel: string;
+  kpiCapacity: string;
+  kpiRate: string;
 }
 
 export interface ProfitabilityStrings {
@@ -81,8 +89,12 @@ export interface LaborCardStrings {
   dailyLaborCost: string;
   laborPerUnit: string;
   dailyWage: string;
-  pieceRateLabel: string;
   monthly: string;
+  salesDept: string;
+  techDept: string;
+  prodDept: string;
+  logisticsDept: string;
+  totalLaborDesc: string;
 }
 
 export interface MarketingStrings {

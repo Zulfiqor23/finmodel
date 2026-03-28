@@ -13,7 +13,12 @@ import UnitCostDonut from './UnitCostDonut';
 import GlobalMetrics from './GlobalMetrics';
 import LaborProductivityCard from './LaborProductivityCard';
 import MarketingAdvisory from './MarketingAdvisory';
+import AIAnalysis from './AIAnalysis';
 import LanguageSwitcher from './LanguageSwitcher';
+import ThemeSwitcher from './ThemeSwitcher';
+import { supabase } from '@/lib/supabase';
+import { Cloud, CheckCircle2 } from 'lucide-react';
+import { useEffect } from 'react';
 
 const INITIAL_INPUTS: FactoryInputs = {
   unitsPerDay: 50,
@@ -23,6 +28,7 @@ const INITIAL_INPUTS: FactoryInputs = {
   shiftHours: 8,
   efficiency: 0.85,
   workdaysPerMonth: 22,
+  defectRate: 0.05,
   monthlyRent: 5000,
   baseMaterialCost: 200,
   liteMaterialCost: 280,
@@ -30,20 +36,60 @@ const INITIAL_INPUTS: FactoryInputs = {
   basePrice: 400,
   litePrice: 550,
   proPrice: 900,
-  workerWage: 700,
-  basePowerCost: 8,
-  machinePowerCost: 45,
+  salesLabor: { workerCount: 2, wageType: 'kpi', fixedWage: 300, kpiCapacity: 50, kpiRate: 2 },
+  techLabor: { workerCount: 1, wageType: 'fixed', fixedWage: 1200, kpiCapacity: 0, kpiRate: 0 },
+  prodLabor: { workerCount: 5, wageType: 'fixed', fixedWage: 700, kpiCapacity: 10, kpiRate: 0 },
+  logisticsLabor: { workerCount: 2, wageType: 'fixed', fixedWage: 500, kpiCapacity: 0, kpiRate: 0 },
+  lightingPowerPerHour: 2,
+  equipmentPowerPerHour: 8,
   burnRatePerHour: 25,
 };
 
 export default function Dashboard() {
   const [inputs, setInputs] = useState<FactoryInputs>(INITIAL_INPUTS);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
   const outputs = useFactoryCalculations(inputs);
   const { locale, setLocale, t } = useLocale();
-  const { themeClasses } = useTheme();
+  const { theme, setTheme, themeClasses } = useTheme();
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const { data, error } = await supabase
+          .from('finmodel_scenarios')
+          .select('inputs')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+          
+        if (data && !error && data.inputs) {
+          // Merge to ensure no missing keys from old saves
+          setInputs(prev => ({ ...prev, ...data.inputs }));
+        }
+      } catch (e) {
+        console.error("Failed to load cloud data", e);
+      }
+    }
+    loadData();
+  }, []);
+
+  const saveToCloud = async () => {
+    setIsSaving(true);
+    setSaveSuccess(false);
+    try {
+      await supabase.from('finmodel_scenarios').insert([{ inputs }]);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (e) {
+      console.error("Failed to save to cloud", e);
+    }
+    setIsSaving(false);
+  };
 
   const handleChange = useCallback(
-    (key: keyof FactoryInputs, value: number) => {
+    (key: keyof FactoryInputs, value: number | any) => {
       setInputs((prev) => ({ ...prev, [key]: value }));
     },
     []
@@ -71,6 +117,25 @@ export default function Dashboard() {
               setLocale={setLocale}
               themeClasses={themeClasses}
             />
+            <ThemeSwitcher
+              theme={theme}
+              setTheme={setTheme}
+              t={t.themeSwitcher}
+            />
+            <button
+              onClick={saveToCloud}
+              disabled={isSaving}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm transition-all duration-300 ${saveSuccess ? 'bg-emerald-500 text-white hover:bg-emerald-600' : themeClasses.pillActive}`}
+            >
+              {isSaving ? (
+                <Cloud className="h-4 w-4 animate-pulse" />
+              ) : saveSuccess ? (
+                <CheckCircle2 className="h-4 w-4" />
+              ) : (
+                <Cloud className="h-4 w-4" />
+              )}
+              {saveSuccess ? 'Saved' : 'Cloud Sync'}
+            </button>
           </div>
         </div>
       </header>
@@ -124,7 +189,6 @@ export default function Dashboard() {
               <LaborProductivityCard
                 labor={outputs.labor}
                 unitsPerDay={inputs.unitsPerDay}
-                efficiency={inputs.efficiency}
                 t={t.laborCard}
                 themeClasses={themeClasses}
               />
@@ -133,6 +197,15 @@ export default function Dashboard() {
                 t={t.marketing}
                 themeClasses={themeClasses}
               />
+            </div>
+
+            {/* AI Analysis Row */}
+            <div className="grid grid-cols-1">
+               <AIAnalysis
+                  inputs={inputs}
+                  outputs={outputs}
+                  themeClasses={themeClasses}
+               />
             </div>
           </div>
         </div>

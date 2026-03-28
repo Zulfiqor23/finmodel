@@ -2,12 +2,11 @@
 
 import { Users } from 'lucide-react';
 import type { LaborCostBreakdown } from '@/lib/types';
-import type { LaborCardStrings, ThemeClasses } from '@/lib/i18n';
+import type { LaborCardStrings, ThemeClasses } from '@/lib/i18n/types';
 
 interface LaborProductivityCardProps {
   labor: LaborCostBreakdown;
   unitsPerDay: number;
-  efficiency: number;
   t: LaborCardStrings;
   themeClasses: ThemeClasses;
 }
@@ -15,12 +14,9 @@ interface LaborProductivityCardProps {
 export default function LaborProductivityCard({
   labor,
   unitsPerDay,
-  efficiency,
   t,
   themeClasses,
 }: LaborProductivityCardProps) {
-  const unitsPerWorker = labor.workerCount > 0 ? unitsPerDay / labor.workerCount : 0;
-  const effectiveUnitsPerWorker = unitsPerWorker * efficiency;
   const laborCostPerUnit =
     unitsPerDay > 0 ? labor.totalDailyCost / unitsPerDay : 0;
 
@@ -31,29 +27,24 @@ export default function LaborProductivityCard({
         <h2 className="text-lg font-semibold">{t.heading}</h2>
       </div>
 
-      {/* Tier badge */}
-      <div className="flex items-center gap-2">
-        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${themeClasses.accentMuted}`}>
-          {labor.workerCount} {t.workers}
-        </span>
-        {labor.tier.pieceRateApplies && (
-          <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 shadow-sm border border-amber-200">
-            {t.pieceRate}
-          </span>
-        )}
+      <p className={`text-xs ${themeClasses.textMuted} mb-2`}>{t.totalLaborDesc}</p>
+
+      {/* KPI grid for 4 departments + totals */}
+      <div className="grid grid-cols-2 gap-3">
+        <KPIBlock label={t.salesDept} value={`$${labor.sales.dailyCost.toFixed(0)}/d`} themeClasses={themeClasses} />
+        <KPIBlock label={t.techDept} value={`$${labor.tech.dailyCost.toFixed(0)}/d`} themeClasses={themeClasses} />
+        <KPIBlock label={t.prodDept} value={`$${labor.prod.dailyCost.toFixed(0)}/d`} themeClasses={themeClasses} />
+        <KPIBlock label={t.logisticsDept} value={`$${labor.logistics.dailyCost.toFixed(0)}/d`} themeClasses={themeClasses} />
       </div>
 
-      {/* KPI grid */}
+      <div className={`my-2 border-t ${themeClasses.cardBorder}`} />
+
       <div className="grid grid-cols-2 gap-3">
-        <KPIBlock label={t.unitsPerWorker} value={unitsPerWorker.toFixed(1)} themeClasses={themeClasses} />
-        <KPIBlock label={t.effectivePerWorker} value={effectiveUnitsPerWorker.toFixed(1)} themeClasses={themeClasses} />
         <KPIBlock label={t.dailyLaborCost} value={`$${labor.totalDailyCost.toFixed(0)}`} themeClasses={themeClasses} />
         <KPIBlock label={t.laborPerUnit} value={`$${laborCostPerUnit.toFixed(2)}`} themeClasses={themeClasses} />
-        <KPIBlock label={t.dailyWage} value={`$${labor.dailyWageCost.toFixed(0)}`} themeClasses={themeClasses} />
-        <KPIBlock label={t.pieceRateLabel} value={`$${labor.dailyPieceRateCost.toFixed(0)}`} themeClasses={themeClasses} />
       </div>
 
-      <p className={`text-xs ${themeClasses.textDimmed}`}>
+      <p className={`text-xs ${themeClasses.textDimmed} text-right`}>
         {t.monthly}: ${labor.totalMonthlyCost.toLocaleString('en-US', { maximumFractionDigits: 0 })}
       </p>
     </div>

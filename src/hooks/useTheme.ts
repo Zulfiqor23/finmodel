@@ -1,6 +1,16 @@
 'use client';
 
+import { useState, useCallback, useEffect } from 'react';
 import type { Theme, ThemeClasses } from '@/lib/i18n';
+
+const STORAGE_KEY = 'fm-theme';
+
+function readStoredTheme(): Theme {
+  if (typeof window === 'undefined') return 'light';
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored === 'dark' || stored === 'light' || stored === 'cold') return stored;
+  return 'light';
+}
 
 const THEME_CLASS_MAP: Record<Theme, ThemeClasses> = {
   dark: {
@@ -63,6 +73,42 @@ const THEME_CLASS_MAP: Record<Theme, ThemeClasses> = {
 };
 
 export function useTheme() {
-  const themeClasses: ThemeClasses = THEME_CLASS_MAP.light;
-  return { theme: 'light' as Theme, setTheme: () => {}, themeClasses } as const;
+  const [theme, setThemeState] = useState<Theme>('light');
+
+  useEffect(() => {
+    const stored = readStoredTheme();
+    setThemeState(stored);
+    applyThemeClass(stored);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const setTheme = useCallback((t: Theme) => {
+    localStorage.setItem(STORAGE_KEY, t);
+    setThemeState(t);
+    applyThemeClass(t);
+  }, []);
+
+  const themeClasses: ThemeClasses = THEME_CLASS_MAP[theme];
+
+  return { theme, setTheme, themeClasses } as const;
+}
+
+function applyThemeClass(theme: Theme) {
+  if (typeof document !== 'undefined') {
+    const el = document.documentElement;
+    el.classList.remove('dark', 'light', 'cold');
+    el.classList.add(theme);
+    
+    // Apply basic background to body to avoid flash on scrollbars
+    if (theme === 'dark') {
+      document.body.style.backgroundColor = '#0a0a0a';
+      document.body.style.color = '#ededed';
+    } else if (theme === 'cold') {
+      document.body.style.backgroundColor = '#020617';
+      document.body.style.color = '#f8fafc';
+    } else {
+      document.body.style.backgroundColor = '#fffff0'; // Ivory
+      document.body.style.color = '#1e293b';
+    }
+  }
 }

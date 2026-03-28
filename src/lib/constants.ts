@@ -4,7 +4,7 @@
 // Change a number here → reflected everywhere via engine.ts.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import type { Product, LaborTier } from './types';
+import type { Product } from './types';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Product catalogue
@@ -47,53 +47,7 @@ export const PRODUCTS: Readonly<Product[]> = [
 ] as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Step-fixed labor tiers
-// ─────────────────────────────────────────────────────────────────────────────
 
-/** Monthly wage per worker (USD) */
-export const WAGE_PER_WORKER_MONTHLY = 700;
-
-/**
- * Step-fixed labor schedule.
- * Tiers are evaluated in order; the first matching tier wins.
- */
-export const LABOR_TIERS: Readonly<LaborTier[]> = [
-  {
-    minUnits: 1,
-    maxUnits: 15,
-    workerCount: 2,
-    wagePerWorker: WAGE_PER_WORKER_MONTHLY,
-    pieceRateApplies: false,
-  },
-  {
-    minUnits: 16,
-    maxUnits: 40,
-    workerCount: 5,
-    wagePerWorker: WAGE_PER_WORKER_MONTHLY,
-    pieceRateApplies: false,
-  },
-  {
-    minUnits: 41,
-    maxUnits: 80,
-    workerCount: 10,
-    wagePerWorker: WAGE_PER_WORKER_MONTHLY,
-    pieceRateApplies: true,
-  },
-  {
-    minUnits: 81,
-    maxUnits: 100,
-    workerCount: 15,
-    wagePerWorker: WAGE_PER_WORKER_MONTHLY,
-    pieceRateApplies: true,
-  },
-] as const;
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Piece-rate surcharge (applied per unit when pieceRateApplies = true)
-// ─────────────────────────────────────────────────────────────────────────────
-
-/** Additional cost per unit produced when operating in a piece-rate tier (USD) */
-export const PIECE_RATE = 23.5;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Factory burn rate

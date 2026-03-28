@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Sliders, Settings2, PackageCheck, Zap, ChevronDown } from 'lucide-react';
-import type { FactoryInputs } from '@/lib/types';
-import type { InputPanelStrings, ThemeClasses } from '@/lib/i18n';
+import { Sliders, Settings2, PackageCheck, Zap, ChevronDown, Users2 } from 'lucide-react';
+import type { FactoryInputs, DepartmentInput } from '@/lib/types';
+import type { InputPanelStrings, ThemeClasses } from '@/lib/i18n/types';
 
 interface InputPanelProps {
   inputs: FactoryInputs;
-  onChange: (key: keyof FactoryInputs, value: number) => void;
+  onChange: (key: keyof FactoryInputs, value: any) => void;
   t: InputPanelStrings;
   themeClasses: ThemeClasses;
 }
@@ -80,6 +80,77 @@ function AccordionGroup({ title, icon: Icon, defaultOpen = false, themeClasses, 
             {children}
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Department Row
+interface DeptRowProps {
+  label: string;
+  dept: DepartmentInput;
+  onChange: (d: DepartmentInput) => void;
+  themeClasses: ThemeClasses;
+  t: InputPanelStrings;
+}
+function DepartmentInputRow({ label, dept, onChange, themeClasses, t }: DeptRowProps) {
+  return (
+    <div className={`p-3 rounded-lg border ${themeClasses.cardBorder} space-y-3`}> 
+      <div className="flex justify-between items-center mb-1">
+        <span className={`text-sm font-medium ${themeClasses.text}`}>{label}</span>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-3">
+         <div className="space-y-1">
+            <span className={`text-xs ${themeClasses.textMuted}`}>Workers</span>
+            <input 
+              type="number" min={0} value={dept.workerCount} 
+              onChange={(e) => onChange({...dept, workerCount: parseInt(e.target.value) || 0})}
+              className={`w-full px-2 py-1 text-sm rounded border ${themeClasses.input} bg-transparent ${themeClasses.text}`}
+            />
+         </div>
+         <div className="space-y-1">
+            <span className={`text-xs ${themeClasses.textMuted}`}>{t.wageTypeLabel}</span>
+            <select 
+               value={dept.wageType}
+               onChange={(e) => onChange({...dept, wageType: e.target.value as 'fixed'|'kpi'})}
+               className={`w-full px-2 py-1 text-sm rounded border ${themeClasses.input} bg-transparent ${themeClasses.text}`}
+            >
+              <option className="text-black" value="fixed">Fixed</option>
+              <option className="text-black" value="kpi">KPI</option>
+            </select>
+         </div>
+         
+         {dept.wageType === 'fixed' && (
+           <div className="space-y-1 col-span-2">
+              <span className={`text-xs ${themeClasses.textMuted}`}>Monthly ($)</span>
+              <input 
+                type="number" min={0} value={dept.fixedWage} 
+                onChange={(e) => onChange({...dept, fixedWage: parseFloat(e.target.value) || 0})}
+                className={`w-full px-2 py-1 text-sm rounded border ${themeClasses.input} bg-transparent ${themeClasses.text}`}
+              />
+           </div>
+         )}
+         {dept.wageType === 'kpi' && (
+           <>
+              <div className="space-y-1">
+                <span className={`text-xs ${themeClasses.textMuted}`}>{t.kpiCapacity}</span>
+                <input 
+                  type="number" min={0} value={dept.kpiCapacity} 
+                  onChange={(e) => onChange({...dept, kpiCapacity: parseInt(e.target.value) || 0})}
+                  className={`w-full px-2 py-1 text-sm rounded border ${themeClasses.input} bg-transparent ${themeClasses.text}`}
+                />
+              </div>
+              <div className="space-y-1">
+                <span className={`text-xs ${themeClasses.textMuted}`}>{t.kpiRate}</span>
+                <input 
+                  type="number" min={0} value={dept.kpiRate} 
+                  onChange={(e) => onChange({...dept, kpiRate: parseFloat(e.target.value) || 0})}
+                  className={`w-full px-2 py-1 text-sm rounded border ${themeClasses.input} bg-transparent ${themeClasses.text}`}
+                />
+              </div>
+           </>
+         )}
       </div>
     </div>
   );
@@ -165,10 +236,20 @@ export default function InputPanel({ inputs, onChange, t, themeClasses }: InputP
             />
           </div>
           <SliderRow
+            label={t.defectRate}
+            value={inputs.defectRate}
+            min={0}
+            max={0.15}
+            step={0.01}
+            format={(v) => `${(v * 100).toFixed(0)}%`}
+            onChange={(v) => onChange('defectRate', v)}
+            themeClasses={themeClasses}
+          />
+          <SliderRow
             label={t.shiftHours}
             value={inputs.shiftHours}
             min={1}
-            max={10}
+            max={9}
             step={1}
             unit="h"
             onChange={(v) => onChange('shiftHours', v)}
@@ -187,8 +268,8 @@ export default function InputPanel({ inputs, onChange, t, themeClasses }: InputP
           <SliderRow
             label={t.workdaysPerMonth}
             value={inputs.workdaysPerMonth}
-            min={18}
-            max={23}
+            min={20}
+            max={26}
             step={1}
             onChange={(v) => onChange('workdaysPerMonth', v)}
             themeClasses={themeClasses}
@@ -208,14 +289,21 @@ export default function InputPanel({ inputs, onChange, t, themeClasses }: InputP
           <SliderRow label={t.proPrice} value={inputs.proPrice} min={300} max={3000} step={50} format={(v) => `$${v}`} onChange={(v) => onChange('proPrice', v)} themeClasses={themeClasses} />
           <SliderRow label={t.proMaterialCost} value={inputs.proMaterialCost} min={150} max={1500} step={10} format={(v) => `$${v}`} onChange={(v) => onChange('proMaterialCost', v)} themeClasses={themeClasses} />
         </AccordionGroup>
+        
+        {/* GROUP 3: Departments */}
+        <AccordionGroup title={t.groupDepartments} icon={Users2} defaultOpen={false} themeClasses={themeClasses}>
+          <DepartmentInputRow label={t.salesLabor} dept={inputs.salesLabor} onChange={(v) => onChange('salesLabor', v)} themeClasses={themeClasses} t={t} />
+          <DepartmentInputRow label={t.techLabor} dept={inputs.techLabor} onChange={(v) => onChange('techLabor', v)} themeClasses={themeClasses} t={t} />
+          <DepartmentInputRow label={t.prodLabor} dept={inputs.prodLabor} onChange={(v) => onChange('prodLabor', v)} themeClasses={themeClasses} t={t} />
+          <DepartmentInputRow label={t.logisticsLabor} dept={inputs.logisticsLabor} onChange={(v) => onChange('logisticsLabor', v)} themeClasses={themeClasses} t={t} />
+        </AccordionGroup>
 
-        {/* GROUP 3: Operations & Utilities */}
+        {/* GROUP 4: Operations & Utilities */}
         <AccordionGroup title={t.groupOverhead} icon={Zap} defaultOpen={false} themeClasses={themeClasses}>
-          <SliderRow label={t.workerWage} value={inputs.workerWage} min={300} max={2000} step={50} format={(v) => `$${v.toLocaleString('en-US')}`} onChange={(v) => onChange('workerWage', v)} themeClasses={themeClasses} />
           <SliderRow label={t.monthlyRent} value={inputs.monthlyRent} min={1000} max={15000} step={500} format={(v) => `$${v.toLocaleString('en-US')}`} onChange={(v) => onChange('monthlyRent', v)} themeClasses={themeClasses} />
-          <SliderRow label={t.basePowerCost} value={inputs.basePowerCost} min={0} max={50} step={1} format={(v) => `$${v}`} onChange={(v) => onChange('basePowerCost', v)} themeClasses={themeClasses} />
-          <SliderRow label={t.machinePowerCost} value={inputs.machinePowerCost} min={10} max={200} step={5} format={(v) => `$${v}`} onChange={(v) => onChange('machinePowerCost', v)} themeClasses={themeClasses} />
-          <SliderRow label={t.burnRatePerHour} value={inputs.burnRatePerHour} min={5} max={100} step={1} format={(v) => `$${v}`} onChange={(v) => onChange('burnRatePerHour', v)} themeClasses={themeClasses} />
+          <SliderRow label={t.lightingPowerCost} value={inputs.lightingPowerPerHour} min={0} max={50} step={1} format={(v) => `$${v}/h`} onChange={(v) => onChange('lightingPowerPerHour', v)} themeClasses={themeClasses} />
+          <SliderRow label={t.equipmentPowerCost} value={inputs.equipmentPowerPerHour} min={5} max={200} step={1} format={(v) => `$${v}/h`} onChange={(v) => onChange('equipmentPowerPerHour', v)} themeClasses={themeClasses} />
+          <SliderRow label={t.burnRatePerHour} value={inputs.burnRatePerHour} min={5} max={100} step={1} format={(v) => `$${v}/h`} onChange={(v) => onChange('burnRatePerHour', v)} themeClasses={themeClasses} />
         </AccordionGroup>
       </div>
     </div>

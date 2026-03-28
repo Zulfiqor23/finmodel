@@ -22,18 +22,17 @@ export interface Product {
   contributionMargin: number;
 }
 
-/** One tier in the step-fixed labor schedule */
-export interface LaborTier {
-  /** Minimum daily units for this tier to apply (inclusive) */
-  minUnits: number;
-  /** Maximum daily units for this tier to apply (inclusive) */
-  maxUnits: number;
-  /** Number of workers required at this tier */
+/** Configurations for a specific labor department */
+export interface DepartmentInput {
   workerCount: number;
-  /** Monthly wage per worker (USD) */
-  wagePerWorker: number;
-  /** Whether piece-rate surcharge applies at this tier */
-  pieceRateApplies: boolean;
+  /** 'fixed' means a fixed monthly salary (oklad), 'kpi' means piece-rate (by produced module) */
+  wageType: 'fixed' | 'kpi';
+  /** Fixed monthly salary per worker (if wageType is 'fixed') */
+  fixedWage: number;
+  /** Units per day capacity for ONE worker (for UI tracking/KPI, if applicable) */
+  kpiCapacity: number;
+  /** Pay per unit produced (if wageType is 'kpi') */
+  kpiRate: number;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -53,8 +52,10 @@ export interface FactoryInputs {
   shiftHours: number;
   /** Worker efficiency ratio (0.5–1.0) */
   efficiency: number;
-  /** Number of working days in the current month (18–23) */
+  /** Number of working days in the current month (18–26) */
   workdaysPerMonth: number;
+  /** Defect rate representing wasted materials / lost revenue (0.0 - 0.15) */
+  defectRate: number;
   /** Monthly rent / fixed overhead in USD */
   monthlyRent: number;
 
@@ -65,9 +66,15 @@ export interface FactoryInputs {
   basePrice: number;
   litePrice: number;
   proPrice: number;
-  workerWage: number;
-  basePowerCost: number;
-  machinePowerCost: number;
+  // Labor Departments
+  salesLabor: DepartmentInput;
+  techLabor: DepartmentInput;
+  prodLabor: DepartmentInput;
+  logisticsLabor: DepartmentInput;
+
+  // Electricity explicitly per hour
+  lightingPowerPerHour: number;
+  equipmentPowerPerHour: number;
   burnRatePerHour: number;
 }
 
@@ -98,20 +105,25 @@ export interface MaterialCostBreakdown {
   total: number;
 }
 
-/** Which labor tier is active and what the daily/monthly wages cost */
+/** Breakdown of labor cost per department */
+export interface DepartmentCost {
+  dailyCost: number;
+  monthlyCost: number;
+}
+
 export interface LaborCostBreakdown {
-  tier: LaborTier;
-  workerCount: number;
-  dailyWageCost: number;
-  dailyPieceRateCost: number;
+  sales: DepartmentCost;
+  tech: DepartmentCost;
+  prod: DepartmentCost;
+  logistics: DepartmentCost;
   totalDailyCost: number;
   totalMonthlyCost: number;
 }
 
 /** Electricity cost for the day */
 export interface ElectricityCost {
-  basePower: number;
-  machinePower: number;
+  lightingPower: number;
+  equipmentPower: number;
   totalDaily: number;
 }
 

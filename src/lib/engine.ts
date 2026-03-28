@@ -9,8 +9,6 @@
 
 import {
   PRODUCTS,
-  LABOR_TIERS,
-  PIECE_RATE,
   BREAKEVEN_THRESHOLD,
 } from './constants';
 
@@ -20,7 +18,8 @@ import type {
   UnitsPerProduct,
   RevenueBreakdown,
   MaterialCostBreakdown,
-  LaborTier,
+  DepartmentCost,
+  DepartmentInput,
   LaborCostBreakdown,
   ElectricityCost,
   OverheadBreakdown,
@@ -50,9 +49,13 @@ export function calculateUnitsPerProduct(
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function calculateRevenue(units: UnitsPerProduct, inputs: FactoryInputs): RevenueBreakdown {
-  const base = units.base * inputs.basePrice;
-  const lite = units.lite * inputs.litePrice;
-  const pro = units.pro * inputs.proPrice;
+  const effBase = units.base * (1 - inputs.defectRate);
+  const effLite = units.lite * (1 - inputs.defectRate);
+  const effPro = units.pro * (1 - inputs.defectRate);
+
+  const base = effBase * inputs.basePrice;
+  const lite = effLite * inputs.litePrice;
+  const pro = effPro * inputs.proPrice;
   const total = base + lite + pro;
 
   return { base, lite, pro, total };
@@ -75,43 +78,46 @@ export function calculateMaterialCost(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 4. Labor tier lookup
+// 5. Labor cost (By Departments)
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function calculateLaborTier(unitsPerDay: number): LaborTier {
-  const tier = LABOR_TIERS.find(
-    (t) => unitsPerDay >= t.minUnits && unitsPerDay <= t.maxUnits
-  );
-  if (!tier) {
-    throw new RangeError(
-      `No labor tier defined for ${unitsPerDay} units/day. Valid range: 1–100.`
-    );
+function calcDepartmentCost(
+  dept: DepartmentInput,
+  unitsPerDay: number,
+  workdays: number
+): DepartmentCost {
+  let dailyCost = 0;
+  if (dept.wageType === 'fixed') {
+    dailyCost = (dept.workerCount * dept.fixedWage) / workdays;
+  } else {
+    // KPI piece-rate based
+    // Assuming the capacity dictates if we need more workers, but we just pay per unit.
+    // However, if the department is piece-rate, they get paid for all units produced.
+    dailyCost = unitsPerDay * dept.kpiRate; // or workerCount * rate depending on logic vs total output
   }
-  return { ...tier };
+  return {
+    dailyCost,
+    monthlyCost: dailyCost * workdays,
+  };
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// 5. Labor cost
-// ─────────────────────────────────────────────────────────────────────────────
 
 export function calculateLaborCost(
   unitsPerDay: number,
   inputs: FactoryInputs
 ): LaborCostBreakdown {
-  const tier = calculateLaborTier(unitsPerDay);
-  const dailyWageCost =
-    (tier.workerCount * inputs.workerWage) / inputs.workdaysPerMonth;
-  const dailyPieceRateCost = tier.pieceRateApplies
-    ? unitsPerDay * PIECE_RATE
-    : 0;
-  const totalDailyCost = dailyWageCost + dailyPieceRateCost;
+  const sales = calcDepartmentCost(inputs.salesLabor, unitsPerDay, inputs.workdaysPerMonth);
+  const tech = calcDepartmentCost(inputs.techLabor, unitsPerDay, inputs.workdaysPerMonth);
+  const prod = calcDepartmentCost(inputs.prodLabor, unitsPerDay, inputs.workdaysPerMonth);
+  const logistics = calcDepartmentCost(inputs.logisticsLabor, unitsPerDay, inputs.workdaysPerMonth);
+
+  const totalDailyCost = sales.dailyCost + tech.dailyCost + prod.dailyCost + logistics.dailyCost;
   const totalMonthlyCost = totalDailyCost * inputs.workdaysPerMonth;
 
   return {
-    tier,
-    workerCount: tier.workerCount,
-    dailyWageCost,
-    dailyPieceRateCost,
+    sales,
+    tech,
+    prod,
+    logistics,
     totalDailyCost,
     totalMonthlyCost,
   };
@@ -122,10 +128,10 @@ export function calculateLaborCost(
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function calculateElectricity(inputs: FactoryInputs): ElectricityCost {
-  const basePower = inputs.basePowerCost;
-  const machinePower = inputs.machinePowerCost * (inputs.shiftHours / 10);
-  const totalDaily = basePower + machinePower;
-  return { basePower, machinePower, totalDaily };
+  const lightingPower = inputs.lightingPowerPerHour * inputs.shiftHours;
+  const equipmentPower = inputs.equipmentPowerPerHour * inputs.shiftHours;
+  const totalDaily = lightingPower + equipmentPower;
+  return { lightingPower, equipmentPower, totalDaily };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -157,6 +163,8 @@ export function calculateUnitCostBreakdown(
 ): UnitCostBreakdown[] {
   const totalUnits = units.base + units.lite + units.pro;
   const electricityPerUnit = totalUnits > 0 ? electricity.totalDaily / totalUnits : 0;
+  // Blend labor dynamically based on total real daily cost 
+  const laborPerUnitDynamic = totalUnits > 0 ? labor.totalDailyCost / totalUnits : 0;
 
   return PRODUCTS.map((product) => {
     let material = 0;
@@ -165,12 +173,15 @@ export function calculateUnitCostBreakdown(
     if (product.sku === 'lite') { material = inputs.liteMaterialCost; sellingPrice = inputs.litePrice; }
     if (product.sku === 'pro') { material = inputs.proMaterialCost; sellingPrice = inputs.proPrice; }
 
-    const laborCost = product.laborPerUnit + (labor.tier.pieceRateApplies ? PIECE_RATE : 0);
+    const laborCost = laborPerUnitDynamic; // Distributed dynamically
     const elec = electricityPerUnit;
     const oh = overhead.overheadPerUnit;
     const totalCost = material + laborCost + elec + oh;
-    const grossMargin = sellingPrice - totalCost;
-    const grossMarginPct = sellingPrice > 0 ? (grossMargin / sellingPrice) * 100 : 0;
+    
+    // Revenue margin after defect
+    const effectiveSellingPrice = sellingPrice * (1 - inputs.defectRate);
+    const grossMargin = effectiveSellingPrice - totalCost;
+    const grossMarginPct = effectiveSellingPrice > 0 ? (grossMargin / effectiveSellingPrice) * 100 : 0;
 
     return {
       sku: product.sku,
@@ -179,7 +190,7 @@ export function calculateUnitCostBreakdown(
       electricity: elec,
       overhead: oh,
       totalCost,
-      sellingPrice,
+      sellingPrice: effectiveSellingPrice,
       grossMargin,
       grossMarginPct,
     };
@@ -273,8 +284,8 @@ export function calculateAll(inputs: FactoryInputs): FactoryOutputs {
   const monthlyProfit = dailyProfit * inputs.workdaysPerMonth;
 
   // New Global Metrics
-  const cogs = materials.total + labor.totalDailyCost + electricity.machinePower + overhead.dailyBurnRate;
-  const opex = overhead.dailyRentAllocation + electricity.basePower; // OPEX separate from primary COGS
+  const cogs = materials.total + labor.totalDailyCost + electricity.equipmentPower + overhead.dailyBurnRate;
+  const opex = overhead.dailyRentAllocation + electricity.lightingPower; // OPEX separate from primary COGS
   const ebitda = revenue.total - cogs - opex; // Simple EBITDA model (excluding Dep/Amort)
   const roi = totalDailyCosts > 0 ? (dailyProfit / totalDailyCosts) * 100 : 0;
 
