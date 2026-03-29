@@ -65,7 +65,7 @@ const THEME_CLASS_MAP: Record<Theme, ThemeClasses> = {
     input: 'accent-green-500',
     headerBg: 'bg-cyan-50/90 border-cyan-100',
     headerBorder: 'border-cyan-100',
-    kpiBlock: 'bg-white/60',
+    kpiBlock: 'bg-[#90D5FF]',
     barBg: 'bg-slate-200',
     pillActive: 'bg-blue-500 text-white shadow-sm',
     pillInactive: 'text-slate-500 hover:text-slate-800 hover:bg-white border hover:border-slate-200 border-transparent',

@@ -80,6 +80,15 @@ export interface FactoryInputs {
   initialInvestment: number;
   /** Value Added Tax (VAT / QQS) rate (0 - 0.20) */
   vatRate: number;
+  // Balance sheet inputs
+  /** Owner's equity / own capital (USD) */
+  ownEquity: number;
+  /** Short-term current liabilities / debts (USD) */
+  currentLiabilities: number;
+  /** Long-term debt (USD) */
+  longTermDebt: number;
+  /** Accounts receivable - money owed by customers (USD) */
+  accountsReceivable: number;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -218,4 +227,46 @@ export interface FactoryOutputs {
   cogsMonthly: number;
   opexMonthly: number;
   ebitdaMonthly: number;
+
+  // ─── Profit Waterfall ───
+  /** Monthly Gross Profit = Revenue - COGS */
+  grossProfitMonthly: number;
+  /** Gross Margin % = Gross Profit / Revenue × 100 */
+  grossMarginPct: number;
+  /** Monthly EBIT = Gross Profit - OPEX (Operating Profit) */
+  ebitMonthly: number;
+  /** Operating Margin % = EBIT / Revenue × 100 */
+  operatingMarginPct: number;
+  /** Net Margin % = Net Profit / Revenue × 100 */
+  netMarginPct: number;
+
+  // ─── Balance Sheet ───
+  /** Approximate total current assets (cash + inventory + AR) */
+  currentAssets: number;
+  /** Approximate total assets (initialInvestment + currentAssets) */
+  totalAssets: number;
+
+  // ─── Liquidity Ratios ───
+  /** Current Ratio = currentAssets / currentLiabilities (norm ≥ 2.0) */
+  currentRatio: number;
+  /** Quick Ratio = (cash + AR) / currentLiabilities (norm ≥ 1.0) */
+  quickRatio: number;
+
+  // ─── Leverage / Stability Ratios ───
+  /** Solvency Ratio = (ownEquity + longTermDebt) / totalAssets (norm ≥ 0.8) */
+  solvencyRatio: number;
+  /** Equity Ratio = ownEquity / totalAssets (norm ≥ 0.5) */
+  equityRatio: number;
+
+  // ─── Profitability Ratios ───
+  /** ROE = (Annual Net Profit / ownEquity) × 100 (norm ≥ 20%) */
+  roe: number;
+  /** ROA = (Annual Net Profit / totalAssets) × 100 (norm ≥ 10%) */
+  roa: number;
+
+  // ─── Activity Ratios ───
+  /** AR Turnover = Annual Revenue / accountsReceivable (norm ≥ 5.0) */
+  arTurnover: number;
+  /** DSO = 360 / arTurnover in days (norm ≤ 60 days) */
+  dso: number;
 }

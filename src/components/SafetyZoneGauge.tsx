@@ -77,10 +77,10 @@ export default function SafetyZoneGauge({ breakeven, t, themeClasses }: SafetyZo
         </p>
       </div>
 
-      {/* Breakdown explanation */}
+      {/* Min units message */}
       <div className={`mt-2 p-3 rounded-lg border leading-tight ${themeClasses.cardBorder} bg-opacity-30`}>
-        <p className={`text-[11px] italic ${themeClasses.textDimmed}`}>
-          {t.breakevenDesc}
+        <p className="text-sm font-semibold text-amber-600 text-center">
+          {t.breakevenMinUnits(threshold)}
         </p>
       </div>
     </div>

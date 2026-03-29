@@ -19,6 +19,7 @@ export interface InputPanelStrings {
   groupProduction: string;
   groupMaterials: string;
   groupOverhead: string;
+  balanceSheetGroup: string;
   // Volume inputs
   unitsPerDay: string;
   productMix: string;
@@ -51,6 +52,11 @@ export interface InputPanelStrings {
   kpiRate: string;
   initialInvestment: string;
   vatRate: string;
+  // Balance sheet input labels
+  ownEquity: string;
+  currentLiabilities: string;
+  longTermDebt: string;
+  accountsReceivable: string;
 }
 
 export interface ProfitabilityStrings {
@@ -69,6 +75,7 @@ export interface BreakevenStrings {
   breakeven: string;
   unitsPerDay: string;
   breakevenDesc: string;
+  breakevenMinUnits: (n: number) => string;
   aboveBreakeven: string;
   belowBreakeven: string;
 }
@@ -152,6 +159,42 @@ export interface DashboardStrings {
   vat: string;
 }
 
+export interface FinancialHealthStrings {
+  heading: string;
+  // Sections
+  profitWaterfall: string;
+  liquidity: string;
+  stability: string;
+  profitability: string;
+  activity: string;
+  // Profit waterfall
+  grossProfit: string;
+  grossMargin: string;
+  ebit: string;
+  operatingMargin: string;
+  netMargin: string;
+  // Liquidity
+  currentRatio: string;
+  quickRatio: string;
+  // Stability
+  solvencyRatio: string;
+  equityRatio: string;
+  // Profitability
+  roe: string;
+  roa: string;
+  // Activity
+  arTurnover: string;
+  dso: string;
+  // Balance sheet inputs
+  ownEquity: string;
+  currentLiabilities: string;
+  longTermDebt: string;
+  accountsReceivable: string;
+  // Norm labels
+  norm: string;
+  days: string;
+}
+
 // ─── Aggregate dictionary ────────────────────────────────────────────────────
 
 export interface Dictionary {
@@ -166,6 +209,7 @@ export interface Dictionary {
   languageSwitcher: LanguageSwitcherStrings;
   themeSwitcher: ThemeSwitcherStrings;
   dashboard: DashboardStrings;
+  financialHealth: FinancialHealthStrings;
 }
 
 // ─── Theme classes interface ─────────────────────────────────────────────────

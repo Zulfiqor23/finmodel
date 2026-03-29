@@ -67,7 +67,7 @@ export default function GlobalMetrics({ outputs, t, themeClasses }: GlobalMetric
       id: 'vat',
       label: t.vat,
       title: t.vat,
-      desc: 'Estimated monthly VAT (QQS) payable.',
+      desc: 'Formula: (Revenue − Materials − Utilities − Burn Rate) × VAT rate. Monthly tax payable to the state.',
       value: formatCurrency(outputs.vatMonthly),
       icon: PieChart,
       color: 'text-cyan-500',

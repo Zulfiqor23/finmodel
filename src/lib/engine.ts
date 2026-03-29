@@ -353,6 +353,39 @@ export function calculateAll(inputs: FactoryInputs): FactoryOutputs {
   const roi = totalDailyCosts > 0 ? (dailyProfit / totalDailyCosts) * 100 : 0;
   const paybackMonths = dailyProfit > 0 ? inputs.initialInvestment / (dailyProfit * inputs.workdaysPerMonth) : 999;
 
+  // ─── Profit Waterfall ───
+  const revenueMonthly = revenue.total * inputs.workdaysPerMonth;
+  const grossProfitMonthly = revenueMonthly - cogs * inputs.workdaysPerMonth;
+  const grossMarginPct = revenueMonthly > 0 ? (grossProfitMonthly / revenueMonthly) * 100 : 0;
+  const ebitMonthly = grossProfitMonthly - opex * inputs.workdaysPerMonth;
+  const operatingMarginPct = revenueMonthly > 0 ? (ebitMonthly / revenueMonthly) * 100 : 0;
+  const netMarginPct = revenueMonthly > 0 ? (monthlyProfit / revenueMonthly) * 100 : 0;
+
+  // ─── Balance Sheet Approximations ───
+  const inventoryApprox = materials.total * 5; // 5 days of material stock buffer
+  const cashApprox = Math.max(0, monthlyProfit);
+  const currentAssets = cashApprox + inventoryApprox + inputs.accountsReceivable;
+  const totalAssets = inputs.initialInvestment + currentAssets;
+  const quickAssets = cashApprox + inputs.accountsReceivable;
+
+  // ─── Liquidity ───
+  const currentRatio = inputs.currentLiabilities > 0 ? currentAssets / inputs.currentLiabilities : 0;
+  const quickRatio = inputs.currentLiabilities > 0 ? quickAssets / inputs.currentLiabilities : 0;
+
+  // ─── Leverage ───
+  const solvencyRatio = totalAssets > 0 ? (inputs.ownEquity + inputs.longTermDebt) / totalAssets : 0;
+  const equityRatio = totalAssets > 0 ? inputs.ownEquity / totalAssets : 0;
+
+  // ─── Profitability ───
+  const annualNetProfit = monthlyProfit * 12;
+  const roe = inputs.ownEquity > 0 ? (annualNetProfit / inputs.ownEquity) * 100 : 0;
+  const roa = totalAssets > 0 ? (annualNetProfit / totalAssets) * 100 : 0;
+
+  // ─── Activity ───
+  const annualRevenue = revenueMonthly * 12;
+  const arTurnover = inputs.accountsReceivable > 0 ? annualRevenue / inputs.accountsReceivable : 0;
+  const dso = arTurnover > 0 ? 360 / arTurnover : 0;
+
   return {
     units,
     revenue,
@@ -375,6 +408,21 @@ export function calculateAll(inputs: FactoryInputs): FactoryOutputs {
     cogsMonthly: cogs * inputs.workdaysPerMonth,
     opexMonthly: opex * inputs.workdaysPerMonth,
     ebitdaMonthly: ebitda * inputs.workdaysPerMonth,
+    grossProfitMonthly,
+    grossMarginPct,
+    ebitMonthly,
+    operatingMarginPct,
+    netMarginPct,
+    currentAssets,
+    totalAssets,
+    currentRatio,
+    quickRatio,
+    solvencyRatio,
+    equityRatio,
+    roe,
+    roa,
+    arTurnover,
+    dso,
   };
 }
 

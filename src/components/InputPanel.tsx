@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Sliders, Settings2, PackageCheck, Zap, ChevronDown, Users2 } from 'lucide-react';
+import { Sliders, Settings2, PackageCheck, Zap, ChevronDown, Users2, Scale } from 'lucide-react';
 import type { FactoryInputs, DepartmentInput } from '@/lib/types';
 import type { InputPanelStrings, ThemeClasses } from '@/lib/i18n/types';
-import { formatMoney } from '@/lib/format';
+import { formatMoney, formatCurrency } from '@/lib/format';
 
 interface InputPanelProps {
   inputs: FactoryInputs;
@@ -307,6 +307,14 @@ export default function InputPanel({ inputs, onChange, t, themeClasses }: InputP
           <SliderRow label={t.lightingPowerCost} value={inputs.lightingPowerPerHour} min={0} max={50} step={1} format={(v) => `$${v}/h`} onChange={(v) => onChange('lightingPowerPerHour', v)} themeClasses={themeClasses} />
           <SliderRow label={t.equipmentPowerCost} value={inputs.equipmentPowerPerHour} min={5} max={200} step={1} format={(v) => `$${v}/h`} onChange={(v) => onChange('equipmentPowerPerHour', v)} themeClasses={themeClasses} />
           <SliderRow label={t.burnRatePerHour} value={inputs.burnRatePerHour} min={5} max={100} step={1} format={(v) => `$${v}/h`} onChange={(v) => onChange('burnRatePerHour', v)} themeClasses={themeClasses} />
+        </AccordionGroup>
+
+        {/* GROUP 5: Balance Sheet */}
+        <AccordionGroup title={t.balanceSheetGroup} icon={Scale} defaultOpen={false} themeClasses={themeClasses}>
+          <SliderRow label={t.ownEquity} value={inputs.ownEquity} min={0} max={2000000} step={10000} format={(v) => formatCurrency(v)} onChange={(v) => onChange('ownEquity', v)} themeClasses={themeClasses} />
+          <SliderRow label={t.currentLiabilities} value={inputs.currentLiabilities} min={0} max={500000} step={5000} format={(v) => formatCurrency(v)} onChange={(v) => onChange('currentLiabilities', v)} themeClasses={themeClasses} />
+          <SliderRow label={t.longTermDebt} value={inputs.longTermDebt} min={0} max={1000000} step={10000} format={(v) => formatCurrency(v)} onChange={(v) => onChange('longTermDebt', v)} themeClasses={themeClasses} />
+          <SliderRow label={t.accountsReceivable} value={inputs.accountsReceivable} min={0} max={200000} step={1000} format={(v) => formatCurrency(v)} onChange={(v) => onChange('accountsReceivable', v)} themeClasses={themeClasses} />
         </AccordionGroup>
       </div>
     </div>

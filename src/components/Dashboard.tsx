@@ -14,6 +14,7 @@ import GlobalMetrics from './GlobalMetrics';
 import LaborProductivityCard from './LaborProductivityCard';
 import MarketingAdvisory from './MarketingAdvisory';
 import AIAnalysis from './AIAnalysis';
+import FinancialHealthCard from './FinancialHealthCard';
 import LanguageSwitcher from './LanguageSwitcher';
 import ThemeSwitcher from './ThemeSwitcher';
 import { supabase } from '@/lib/supabase';
@@ -43,6 +44,10 @@ const INITIAL_INPUTS: FactoryInputs = {
   burnRatePerHour: 25,
   initialInvestment: 500000,
   vatRate: 0.12,
+  ownEquity: 300000,
+  currentLiabilities: 50000,
+  longTermDebt: 150000,
+  accountsReceivable: 25000,
 };
 
 export default function Dashboard() {
@@ -212,6 +217,13 @@ export default function Dashboard() {
                 themeClasses={themeClasses}
               />
             </div>
+
+            {/* Financial Health */}
+            <FinancialHealthCard
+              outputs={outputs}
+              t={t.financialHealth}
+              themeClasses={themeClasses}
+            />
 
             {/* AI Analysis Row */}
             <div className="grid grid-cols-1">

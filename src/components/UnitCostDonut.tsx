@@ -79,14 +79,14 @@ export default function UnitCostDonut({ unitCosts, t, themeClasses }: UnitCostDo
               >
                 {uc.sku.charAt(0).toUpperCase() + uc.sku.slice(1)}
               </p>
-                  <ResponsiveContainer width="100%" height={160}>
+                  <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
                   <Pie
                     data={data}
                     cx="50%"
                     cy="50%"
                     innerRadius={0}
-                    outerRadius={55}
+                    outerRadius={72}
                     paddingAngle={0}
                     dataKey="value"
                     stroke="#fff"
@@ -111,17 +111,17 @@ export default function UnitCostDonut({ unitCosts, t, themeClasses }: UnitCostDo
                   <Tooltip content={<CustomTooltip />} />
                 </PieChart>
               </ResponsiveContainer>
-              <div className="space-y-0.5 text-xs">
-                <p className={themeClasses.textMuted}>
+              <div className="space-y-0.5 text-sm">
+                <p className={`font-bold ${themeClasses.textMuted}`}>
                   {t.cost}{' '}
-                  <span className={`font-mono ${themeClasses.text}`}>
+                  <span className={`font-mono font-bold ${themeClasses.text}`}>
                     ${formatMoney(uc.totalCost)}
                   </span>
                 </p>
-                <p className={themeClasses.textMuted}>
+                <p className={`font-bold ${themeClasses.textMuted}`}>
                   {t.margin}{' '}
                   <span
-                    className={`font-mono font-medium ${
+                    className={`font-mono font-bold ${
                       uc.grossMargin >= 0 ? 'text-emerald-600' : 'text-rose-600'
                     }`}
                   >
